@@ -11,14 +11,14 @@ npm install testingbot-api
 ## Using the wrapper
 
 ```javascript
-var testingbot = require('testingbot-api');
+var TestingBot = require('testingbot-api');
 
-var myAccount = new SauceLabs({
+var tb = new TestingBot({
   api_key: "your-tb-key",
-  api_scret: "your-tb-secret"
+  api_secret: "your-tb-secret"
 });
 
-testingbot.getUserInfo(function(err, data) {
+tb.getUserInfo(function(err, data) {
 	console.log(data);
 });
 
