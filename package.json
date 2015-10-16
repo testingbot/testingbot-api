@@ -1,0 +1,20 @@
+{
+  "author": "TestingBot <info@testingbot.com> (testingbot.com)",
+  "name": "testingbot-api",
+  "description": "A wrapper around TestingBot's REST API",
+  "version": "1.0.0",
+  "homepage": "https://github.com/testingbot/testingbot-api",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/testingbot/testingbot-api.git"
+  },
+  "devDependencies": {
+    "mocha": ""
+  },
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "qs": ""
+  }
+}
