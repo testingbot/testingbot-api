@@ -21,7 +21,7 @@ var tb = new TestingBot({
 tb.getUserInfo(function(err, data) {
 	console.log(data);
 });
-
+```
 
 ## More documentation
 
