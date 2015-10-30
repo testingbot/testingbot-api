@@ -2,7 +2,7 @@
   "author": "TestingBot <info@testingbot.com> (testingbot.com)",
   "name": "testingbot-api",
   "description": "A wrapper around TestingBot's REST API",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/testingbot/testingbot-api",
   "repository": {
     "type": "git",
