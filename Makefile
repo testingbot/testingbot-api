@@ -9,4 +9,4 @@ clean:
 lint:
 		eslint lib/
 test: clean lint
-	mocha --reporter spec test/ $(MOCHAFLAGS)
+	mocha -t 6000 --reporter spec test/ $(MOCHAFLAGS)

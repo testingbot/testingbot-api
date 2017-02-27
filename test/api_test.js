@@ -51,4 +51,18 @@ describe('Api Tests', function() {
       });
     });
   });
+
+  it('should update a user object', function(done) {
+    var that = this;
+    var newName = "name_" + Math.round(Math.random()*10000);
+    this.api.updateUserInfo({ user: { first_name : newName } }, function(err, response) {
+      assert.equal(err, null);
+      that.api.getUserInfo(function(err, response) {
+        assert.notEqual(response, null);
+        assert.equal(err, null);
+        assert.equal(response.first_name, newName);
+        done();
+      });
+    });
+  });
 });
