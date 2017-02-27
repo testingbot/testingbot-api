@@ -2,19 +2,30 @@
   "author": "TestingBot <info@testingbot.com> (testingbot.com)",
   "name": "testingbot-api",
   "description": "A wrapper around TestingBot's REST API",
-  "version": "1.0.1",
+  "version": "1.0.2",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "make test"
+  },
   "homepage": "https://github.com/testingbot/testingbot-api",
   "repository": {
     "type": "git",
     "url": "git://github.com/testingbot/testingbot-api.git"
   },
   "devDependencies": {
-    "mocha": ""
+    "eslint": "^3.15.0",
+    "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-promise": "^3.4.1",
+    "eslint-plugin-standard": "^2.0.1",
+    "mocha": "^3.1.2"
   },
   "engines": {
     "node": "*"
   },
   "dependencies": {
-    "qs": ""
+    "qs": "^6.3.1",
+    "request": "^2.79.0"
   }
 }
