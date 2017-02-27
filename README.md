@@ -1,3 +1,9 @@
+[![npm version](https://img.shields.io/npm/v/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api) 
+[![npm downloads](https://img.shields.io/npm/dm/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api)
+[![CircleCI](https://img.shields.io/circleci/project/github/testingbot/testingbot-api.svg)](https://circleci.com/gh/testingbot/testingbot-api/tree/master)
+[![Dependency Status](https://img.shields.io/david/karma-runner/testingbot-api.svg?style=flat-square)](https://david-dm.org/karma-runner/testingbot-api)
+[![devDependency Status](https://img.shields.io/david/dev/karma-runner/testingbot-api.svg?style=flat-square)](https://david-dm.org/karma-runner/testingbot-api#info=devDependencies)
+
 # testingbot-api
 
 Wrapper around the TestingBot REST API for [Node.js](http://nodejs.org/).
@@ -22,6 +28,10 @@ tb.getUserInfo(function(err, data) {
 	console.log(data);
 });
 ```
+
+## Tests
+
+``npm test``
 
 ## More documentation
 
