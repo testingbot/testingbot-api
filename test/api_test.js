@@ -65,4 +65,55 @@ describe('Api Tests', function() {
       });
     });
   });
+
+  it('should update a test by specifying legacy data', function(done) {
+    var that = this;
+    this.api.getTests(function(err, response) {
+      assert.equal(response.data && response.data.length > 0, true);
+      var singleTest = response.data[0];
+      that.api.getTestDetails(singleTest.id, function(err, response) {
+        assert.notEqual(response, null);
+        var payload = { "test[success]" : "1", "test[status_message]" : "test" };
+        that.api.updateTest(payload, singleTest.id, function(err) {
+          that.api.getTestDetails(singleTest.id, function(err, response) {
+            assert.equal(response.status_message, "test");
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('should update a test by specifying object data', function(done) {
+    var that = this;
+    this.api.getTests(function(err, response) {
+      assert.equal(response.data && response.data.length > 0, true);
+      var singleTest = response.data[0];
+      that.api.getTestDetails(singleTest.id, function(err, response) {
+        assert.notEqual(response, null);
+        var payload = { test: { success: 1, status_message: "test2" } };
+        that.api.updateTest(payload, singleTest.id, function(err) {
+          that.api.getTestDetails(singleTest.id, function(err, response) {
+            assert.equal(response.status_message, "test2");
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  it('should be possible to delete a test', function(done) {
+    var that = this;
+    this.api.getTests(function(err, response) {
+      assert.equal(response.data && response.data.length > 0, true);
+      var singleTest = response.data[0];
+      that.api.deleteTest(singleTest.id, function(err, response) {
+        that.api.getTestDetails(singleTest.id, function(err, response) {
+          assert.equal(response, null);
+          assert.notEqual(err, null);
+          done();
+        });
+      });
+    });
+  });
 });
