@@ -2,7 +2,7 @@
   "author": "TestingBot <info@testingbot.com> (testingbot.com)",
   "name": "testingbot-api",
   "description": "A wrapper around TestingBot's REST API",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "scripts": {
     "lint": "eslint .",
     "test": "make test"
