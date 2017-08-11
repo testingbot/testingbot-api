@@ -1,6 +1,6 @@
 [![npm version](https://img.shields.io/npm/v/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api) 
 [![npm downloads](https://img.shields.io/npm/dm/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api)
-[![CircleCI](https://img.shields.io/circleci/project/github/testingbot/testingbot-api.svg)](https://circleci.com/gh/testingbot/testingbot-api/tree/master)
+[![CircleCI](https://circleci.com/gh/testingbot/testingbot-api.svg?style=svg)](https://circleci.com/gh/testingbot/testingbot-api)
 [![Dependency Status](https://img.shields.io/david/testingbot/testingbot-api.svg?style=flat-square)](https://david-dm.org/karma-runner/testingbot-api)
 [![devDependency Status](https://img.shields.io/david/dev/testingbot/testingbot-api.svg?style=flat-square)](https://david-dm.org/karma-runner/testingbot-api#info=devDependencies)
 
@@ -41,7 +41,7 @@ Check out the [TestingBot REST API](https://testingbot.com/support/api) for more
 
 The MIT License (MIT)
 
-Copyright (c) 2015 TestingBot.com
+Copyright (c) 2017 TestingBot.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
