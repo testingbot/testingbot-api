@@ -1,8 +1,8 @@
 [![npm version](https://img.shields.io/npm/v/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api) 
 [![npm downloads](https://img.shields.io/npm/dm/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api)
-[![CircleCI](https://circleci.com/gh/testingbot/testingbot-api.svg?style=svg)](https://circleci.com/gh/testingbot/testingbot-api)
-[![Dependency Status](https://img.shields.io/david/testingbot/testingbot-api.svg?style=flat-square)](https://david-dm.org/karma-runner/testingbot-api)
-[![devDependency Status](https://img.shields.io/david/dev/testingbot/testingbot-api.svg?style=flat-square)](https://david-dm.org/karma-runner/testingbot-api#info=devDependencies)
+[![Build Status](https://travis-ci.org/testingbot/testingbot-api.svg?branch=master)](https://travis-ci.org/testingbot/testingbot-api)
+[![dependencies Status](https://david-dm.org/testingbot/testingbot-api/status.svg)](https://david-dm.org/testingbot/testingbot-api)
+[![devDependencies Status](https://david-dm.org/testingbot/testingbot-api/dev-status.svg)](https://david-dm.org/testingbot/testingbot-api?type=dev)
 
 # testingbot-api
 
