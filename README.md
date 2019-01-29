@@ -14,6 +14,10 @@ Wrapper around the TestingBot REST API for [Node.js](http://nodejs.org/).
 npm install testingbot-api
 ```
 
+## Credentials
+You can use environment variables `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` to pass your TestingBot key and secret to the API client.
+The key and secret can be obtained from [TestingBot](https://testingbot.com/members/user/edit) .
+
 ## Using the wrapper
 
 ```javascript
@@ -23,10 +27,100 @@ var tb = new TestingBot({
   api_key: "your-tb-key",
   api_secret: "your-tb-secret"
 });
+```
 
-tb.getUserInfo(function(err, data) {
-	console.log(data);
-});
+### getBrowsers
+Gets a list of browsers you can test on
+
+```javascript
+api.getBrowsers(function(error, browsers) {});
+```
+
+
+### getUserInfo
+Gets your user information
+
+```javascript
+api.getUserInfo(function(error, userInfo) {});
+```
+
+### getTests
+Gets list of your latest tests
+
+```javascript
+api.getTests(function(error, tests) {}, offset, limit);
+```
+
+### getTestDetails
+Gets details for a single test, pass the WebDriver's SessionID
+
+```javascript
+api.getTestDetails(sessionId, function(error, testDetails) {});
+```
+
+### updateTest
+Updates a single test. For example, update the `passed` state of a test (whether it was successful or not).
+
+```javascript
+var testData = { "test[success]" : "1", "test[status_message]" : "test" };
+api.updateTest(testData, sessionId, function(error, testDetails) {});
+```
+
+### deleteTest
+Deletes a single test, pass the WebDriver's SessionID
+
+```javascript
+api.deleteTest(sessionId, function(error, success) {});
+```
+
+### stopTest
+Stops a single test, pass the WebDriver's SessionID
+
+```javascript
+api.stopTest(sessionId, function(error, success) {});
+```
+
+### getTunnelList
+Gets list of active tunnels
+
+```javascript
+api.getTunnelList(function(error, tunnelList) {});
+```
+
+### deleteTunnel
+Deletes a single Tunnel
+
+```javascript
+api.deleteTunnel(tunnelId, function(error, success) {});
+```
+
+### getBuilds
+Retrieves the latest builds
+
+```javascript
+api.getBuilds(function(error, builds) {}, offset, limit);
+```
+
+### getTestsForBuild
+Retrieves the tests for a single build
+
+```javascript
+api.getTestsForBuild(buildId, function(error, tests) {});
+```
+
+### deleteBuild
+Deletes a single build
+
+```javascript
+api.deleteBuild(buildId, function(error, success) {});
+```
+
+### getAuthenticationHashForSharing
+Calculates the authentication hash for sharing, pass the WebDriver's SessionID.
+This is used to [share a test's detail page on TestingBot](https://testingbot.com/support/other/sharing)
+
+```javascript
+api.getAuthenticationHashForSharing(sessionId);
 ```
 
 ## Tests
@@ -41,7 +135,7 @@ Check out the [TestingBot REST API](https://testingbot.com/support/api) for more
 
 The MIT License (MIT)
 
-Copyright (c) 2017 TestingBot.com
+Copyright (c) TestingBot.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

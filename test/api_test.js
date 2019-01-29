@@ -66,6 +66,11 @@ describe('Api Tests', function() {
     });
   });
 
+  it('should share a test', function(done) {
+    assert.equal(this.api.getAuthenticationHashForSharing('sampleSessionId'), '7af1007a329eeeef3c69577517ca827c');
+    done();
+  });
+
   it('should update a test by specifying legacy data', function(done) {
     var that = this;
     this.api.getTests(function(err, response) {
