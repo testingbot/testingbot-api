@@ -115,6 +115,20 @@ Deletes a single build
 api.deleteBuild(buildId, function(error, success) {});
 ```
 
+### uploadFile
+Uploads a local file to TestingBot Storage
+
+```javascript
+api.uploadFile(localFilePath, function(error, appUrl) {});
+```
+
+### uploadRemoteFile
+Uploads a remote file to TestingBot Storage
+
+```javascript
+api.uploadFile(remoteFileUrl, function(error, appUrl) {});
+```
+
 ### getAuthenticationHashForSharing
 Calculates the authentication hash for sharing, pass the WebDriver's SessionID.
 This is used to [share a test's detail page on TestingBot](https://testingbot.com/support/other/sharing)

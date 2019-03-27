@@ -2,9 +2,9 @@
   "author": "TestingBot <info@testingbot.com> (testingbot.com)",
   "name": "testingbot-api",
   "description": "A wrapper around TestingBot's REST API",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint lib/",
     "test": "make test"
   },
   "homepage": "https://github.com/testingbot/testingbot-api",
@@ -25,7 +25,7 @@
     "node": "*"
   },
   "dependencies": {
-    "qs": "^6.6.0",
+    "qs": "^6.7.0",
     "request": "^2.88.0"
   }
 }

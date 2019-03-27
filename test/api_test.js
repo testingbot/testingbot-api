@@ -1,6 +1,8 @@
 'use strict';
+
 var TbApi = require('../lib/api.js');
 var assert = require('assert');
+var path = require('path');
 
 describe('Api Tests', function() {
   beforeEach(function(done) {
@@ -17,7 +19,7 @@ describe('Api Tests', function() {
   });
 
   it('should detect wrong credentials', function(done) {
-    var api = new TbApi({api_key: 'bogus', api_secret: 'bogus'});
+    var api = new TbApi({ api_key: 'bogus', api_secret: 'bogus' });
     api.getUserInfo(function(err, response) {
       assert.equal(response, null);
       assert.notEqual(err, null);
@@ -46,7 +48,7 @@ describe('Api Tests', function() {
       assert.equal(response.data && response.data.length > 0, true);
       var singleTest = response.data[0];
       that.api.getTestDetails(singleTest.id, function(err, response) {
-        assert.notEqual(response, null);      
+        assert.notEqual(response, null);
         done();
       });
     });
@@ -54,8 +56,8 @@ describe('Api Tests', function() {
 
   it('should update a user object', function(done) {
     var that = this;
-    var newName = "name_" + Math.round(Math.random()*10000);
-    this.api.updateUserInfo({ user: { first_name : newName } }, function(err, response) {
+    var newName = 'name_' + Math.round(Math.random() * 10000);
+    this.api.updateUserInfo({ user: { first_name: newName } }, function(err, response) {
       assert.equal(err, null);
       that.api.getUserInfo(function(err, response) {
         assert.notEqual(response, null);
@@ -78,10 +80,10 @@ describe('Api Tests', function() {
       var singleTest = response.data[0];
       that.api.getTestDetails(singleTest.id, function(err, response) {
         assert.notEqual(response, null);
-        var payload = { "test[success]" : "1", "test[status_message]" : "test" };
+        var payload = { 'test[success]': '1', 'test[status_message]': 'test' };
         that.api.updateTest(payload, singleTest.id, function(err) {
           that.api.getTestDetails(singleTest.id, function(err, response) {
-            assert.equal(response.status_message, "test");
+            assert.equal(response.status_message, 'test');
             done();
           });
         });
@@ -96,10 +98,10 @@ describe('Api Tests', function() {
       var singleTest = response.data[0];
       that.api.getTestDetails(singleTest.id, function(err, response) {
         assert.notEqual(response, null);
-        var payload = { test: { success: 1, status_message: "test2" } };
+        var payload = { test: { success: 1, status_message: 'test2' } };
         that.api.updateTest(payload, singleTest.id, function(err) {
           that.api.getTestDetails(singleTest.id, function(err, response) {
-            assert.equal(response.status_message, "test2");
+            assert.equal(response.status_message, 'test2');
             done();
           });
         });
@@ -119,6 +121,21 @@ describe('Api Tests', function() {
           done();
         });
       });
+    });
+  });
+
+  it('should be possible to upload a local file', function(done) {
+    var testFilePath = path.resolve(__dirname, 'test.apk');
+    this.api.uploadFile(testFilePath, function(err, response) {
+      assert(response.app_url !== undefined);
+      done();
+    });
+  });
+
+  it('should be possible to upload a remote file', function(done) {
+    this.api.uploadRemoteFile('https://testingbot.com/appium/sample.apk', function(err, response) {
+      assert(response.app_url !== undefined);
+      done();
     });
   });
 });
