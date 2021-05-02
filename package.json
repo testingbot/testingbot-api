@@ -13,7 +13,7 @@
     "url": "git://github.com/testingbot/testingbot-api.git"
   },
   "bugs": {
-    "url" : "https://github.com/testingbot/testingbot-api/issues",
+    "url" : "https://github.com/testingbot/testingbot-api/issues"
   },
   "keywords": [
     "testingbot-api",
