@@ -1,12 +1,12 @@
 [![npm version](https://img.shields.io/npm/v/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api) 
 [![npm downloads](https://img.shields.io/npm/dm/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api)
 [![Build Status](https://travis-ci.org/testingbot/testingbot-api.svg?branch=master)](https://travis-ci.org/testingbot/testingbot-api)
-[![dependencies Status](https://david-dm.org/testingbot/testingbot-api/status.svg)](https://david-dm.org/testingbot/testingbot-api)
-[![devDependencies Status](https://david-dm.org/testingbot/testingbot-api/dev-status.svg)](https://david-dm.org/testingbot/testingbot-api?type=dev)
+[![dependencies Status](https://status.david-dm.org/gh/testingbot/testingbot-api.svg)](https://david-dm.org/testingbot/testingbot-api)
+[![devDependencies Status](https://status.david-dm.org/gh/testingbot/testingbot-api.svg?type=dev)](https://david-dm.org/testingbot/testingbot-api?type=dev)
 
 # testingbot-api
 
-Wrapper around the TestingBot REST API for [Node.js](http://nodejs.org/).
+Wrapper around the TestingBot REST API for [Node.js](https://nodejs.org/).
 
 ## Install
 
@@ -16,7 +16,7 @@ npm install testingbot-api
 
 ## Credentials
 You can use environment variables `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` to pass your TestingBot key and secret to the API client.
-The key and secret can be obtained from [TestingBot](https://testingbot.com/members/user/edit) .
+The key and secret can be obtained from [TestingBot](https://testingbot.com/members/user/edit)
 
 ## Using the wrapper
 
@@ -34,6 +34,27 @@ Gets a list of browsers you can test on
 
 ```javascript
 api.getBrowsers(function(error, browsers) {});
+```
+
+### getDevices
+Gets a list of physical mobile devices you can test on
+
+```javascript
+api.getDevices(function(error, devices) {});
+```
+
+### getAvailableDevices
+Gets a list of available physical mobile devices for your account
+
+```javascript
+api.getAvailableDevices(function(error, availableDevices) {});
+```
+
+### getDevice
+Gets details for a specific physical device
+
+```javascript
+api.getDevice(deviceId, function(error, deviceDetails) {});
 ```
 
 
@@ -129,12 +150,54 @@ Uploads a remote file to TestingBot Storage
 api.uploadFile(remoteFileUrl, function(error, appUrl) {});
 ```
 
+### getStorageFile
+Retrieve data from a previously uploaded file
+
+```javascript
+api.getStorageFile(remoteFileUrl, function(error, fileDetails) {});
+```
+
+### getStorageFiles
+Retrieve list of previously uploaded files
+
+```javascript
+api.getStorageFiles(function(error, fileDetails) {}, offset, limit);
+```
+
+### deleteStorageFile
+Delete a previously uploaded file
+
+```javascript
+api.deleteStorageFile(appId, function(error, success) {});
+```
+
 ### getAuthenticationHashForSharing
 Calculates the authentication hash for sharing, pass the WebDriver's SessionID.
 This is used to [share a test's detail page on TestingBot](https://testingbot.com/support/other/sharing)
 
 ```javascript
 api.getAuthenticationHashForSharing(sessionId);
+```
+
+### takeScreenshot
+Takes screenshots for the specific browsers
+
+```javascript
+api.getUserInfo(function(error, screenshots) {}, url, browsers, waitTime, resolution, fullPage, callbackURL);
+```
+
+### retrieveScreenshots
+Retrieves screenshots for a specific `takeScreenshot` call
+
+```javascript
+api.getUserInfo(screenshotId, function(error, screenshots) {});
+```
+
+### getScreenshotList
+Retrieves all screenshots previously generate with your account
+
+```javascript
+api.getScreenshotList(function(error, screenshots) {}, offset, limit);
 ```
 
 ## Tests
@@ -144,27 +207,3 @@ api.getAuthenticationHashForSharing(sessionId);
 ## More documentation
 
 Check out the [TestingBot REST API](https://testingbot.com/support/api) for more information.
-
-## License
-
-The MIT License (MIT)
-
-Copyright (c) TestingBot.com
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.

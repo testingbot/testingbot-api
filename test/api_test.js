@@ -34,6 +34,13 @@ describe('Api Tests', function() {
     });
   });
 
+  it('should list devices', function(done) {
+    this.api.getDevices(function(err, response) {
+      assert.equal(response && response.length > 0, true);
+      done();
+    });
+  });
+
   it('should error when not test is found', function(done) {
     this.api.getTestDetails(324234234324, function(err, response) {
       assert.equal(null, response);
