@@ -19,3 +19,6 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm test
+        env:
+          TB_KEY: ${{ secrets.TB_KEY }}
+          TB_SECRET: ${{ secrets.TB_SECRET }}
