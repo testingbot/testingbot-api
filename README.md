@@ -1,8 +1,6 @@
 [![npm version](https://img.shields.io/npm/v/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api) 
 [![npm downloads](https://img.shields.io/npm/dm/testingbot-api.svg?style=flat-square)](https://www.npmjs.com/package/testingbot-api)
-[![Build Status](https://travis-ci.org/testingbot/testingbot-api.svg?branch=master)](https://travis-ci.org/testingbot/testingbot-api)
-[![dependencies Status](https://status.david-dm.org/gh/testingbot/testingbot-api.svg)](https://david-dm.org/testingbot/testingbot-api)
-[![devDependencies Status](https://status.david-dm.org/gh/testingbot/testingbot-api.svg?type=dev)](https://david-dm.org/testingbot/testingbot-api?type=dev)
+[![Tests](https://github.com/testingbot/testingbot-api/actions/workflows/test.yml/badge.svg)](https://github.com/testingbot/testingbot-api/actions/workflows/test.yml)
 
 # testingbot-api
 
