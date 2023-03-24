@@ -198,6 +198,48 @@ Retrieves all screenshots previously generate with your account
 api.getScreenshotList(function(error, screenshots) {}, offset, limit);
 ```
 
+### getTeam
+Retrieves team information
+
+```javascript
+api.getTeam(function(error, data) {});
+```
+
+### getUsersInTeam
+Get all users in your team
+
+```javascript
+api.getUsersInTeam(function(error, users) {});
+```
+
+### getUserFromTeam
+Retrieves information about a specific user in your team
+
+```javascript
+api.getUserFromTeam(userId, function(error, user) {});
+```
+
+### createUserInTeam
+Add a user to your team. You need ADMIN rights for this.
+
+```javascript
+api.createUserInTeam(user, function(error, result) {});
+```
+
+### updateUserInTeam
+Update a user in your team. You need ADMIN rights for this.
+
+```javascript
+api.updateUserInTeam(userId, userData, function(error, result) {});
+```
+
+### resetCredentials
+Resets credentials for a specific user in your team. You need ADMIN rights for this.
+
+```javascript
+api.resetCredentials(userId, function(error, result) {});
+```
+
 ## Tests
 
 ``npm test``
