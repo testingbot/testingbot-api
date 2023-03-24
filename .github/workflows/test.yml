@@ -6,6 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         node: [ 14, 16, 18, "lts/*" ]
     steps:

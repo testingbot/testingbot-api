@@ -41,7 +41,7 @@ describe('Api Tests', function() {
     });
   });
 
-  it('should error when not test is found', function(done) {
+  it('should error when no test is found', function(done) {
     this.api.getTestDetails(324234234324, function(err, response) {
       assert.equal(null, response);
       assert.notEqual(err, null);
