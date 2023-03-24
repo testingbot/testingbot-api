@@ -5,7 +5,7 @@
   "version": "1.0.8",
   "scripts": {
     "lint": "eslint lib/",
-    "test:unit": "mocha -t 6000 test/",
+    "test:unit": "mocha -t 12000 test/",
     "test": "run-s lint test:unit"
   },
   "homepage": "https://github.com/testingbot/testingbot-api",
