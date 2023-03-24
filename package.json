@@ -22,12 +22,10 @@
     "nodejs api"
   ],
   "devDependencies": {
-    "eslint": "^7.25.0",
-    "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-promise": "^5.1.0",
-    "eslint-plugin-standard": "^5.0.0",
+    "eslint": "^8.36.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
     "mocha": "^10.2.0",
     "npm-run-all": "^4.1.5"
   },
