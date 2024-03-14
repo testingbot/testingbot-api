@@ -63,6 +63,13 @@ Gets your user information
 api.getUserInfo(function(error, userInfo) {});
 ```
 
+### updateUserInfo
+Updates your user information
+
+```javascript
+api.updateUserInfo(newUserdata, function(error, userInfo) {});
+```
+
 ### getTests
 Gets list of your latest tests
 
@@ -181,14 +188,14 @@ api.getAuthenticationHashForSharing(sessionId);
 Takes screenshots for the specific browsers
 
 ```javascript
-api.getUserInfo(function(error, screenshots) {}, url, browsers, waitTime, resolution, fullPage, callbackURL);
+api.takeScreenshot(function(error, screenshots) {}, url, browsers, waitTime, resolution, fullPage, callbackURL);
 ```
 
 ### retrieveScreenshots
 Retrieves screenshots for a specific `takeScreenshot` call
 
 ```javascript
-api.getUserInfo(screenshotId, function(error, screenshots) {});
+api.retrieveScreenshots(screenshotId, function(error, screenshots) {});
 ```
 
 ### getScreenshotList
