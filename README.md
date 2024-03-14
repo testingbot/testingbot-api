@@ -19,9 +19,9 @@ The key and secret can be obtained from [TestingBot](https://testingbot.com/memb
 ## Using the wrapper
 
 ```javascript
-var TestingBot = require('testingbot-api');
+const TestingBot = require('testingbot-api');
 
-var tb = new TestingBot({
+const tb = new TestingBot({
   api_key: "your-tb-key",
   api_secret: "your-tb-secret"
 });
@@ -88,7 +88,7 @@ api.getTestDetails(sessionId, function(error, testDetails) {});
 Updates a single test. For example, update the `passed` state of a test (whether it was successful or not).
 
 ```javascript
-var testData = { "test[success]" : "1", "test[status_message]" : "test" };
+const testData = { "test[success]" : "1", "test[status_message]" : "test" };
 api.updateTest(testData, sessionId, function(error, testDetails) {});
 ```
 
