@@ -31,6 +31,7 @@
     "node": "*"
   },
   "dependencies": {
-    "request": "^2.88.2"
+    "axios": "^1.12.2",
+    "form-data": "^4.0.4"
   }
 }
