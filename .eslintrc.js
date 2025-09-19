@@ -22,6 +22,7 @@ module.exports = {
         ],
         "callback-return": "off",
         "camelcase": "off",
+        "consistent-return": "off",
         "capitalized-comments": [
             "error",
             "never"
