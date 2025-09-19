@@ -27,32 +27,53 @@ const tb = new TestingBot({
 });
 ```
 
+All methods support both callback style and async/await patterns. When using async/await, omit the callback parameter.
+
 ### getBrowsers
 Gets a list of browsers you can test on
 
 ```javascript
-api.getBrowsers(function(error, browsers) {});
+// Callback style
+tb.getBrowsers(function(error, browsers) {});
+
+// Async/await style
+const browsers = await tb.getBrowsers();
+
+// With optional type parameter (e.g., 'web' or 'mobile')
+const webBrowsers = await tb.getBrowsers('web');
 ```
 
 ### getDevices
 Gets a list of physical mobile devices you can test on
 
 ```javascript
-api.getDevices(function(error, devices) {});
+// Callback style
+tb.getDevices(function(error, devices) {});
+
+// Async/await style
+const devices = await tb.getDevices();
 ```
 
 ### getAvailableDevices
 Gets a list of available physical mobile devices for your account
 
 ```javascript
-api.getAvailableDevices(function(error, availableDevices) {});
+// Callback style
+tb.getAvailableDevices(function(error, availableDevices) {});
+
+// Async/await style
+const availableDevices = await tb.getAvailableDevices();
 ```
 
 ### getDevice
 Gets details for a specific physical device
 
 ```javascript
-api.getDevice(deviceId, function(error, deviceDetails) {});
+// Callback style
+tb.getDevice(deviceId, function(error, deviceDetails) {});
+
+// Async/await style
+const deviceDetails = await tb.getDevice(deviceId);
 ```
 
 
@@ -60,28 +81,47 @@ api.getDevice(deviceId, function(error, deviceDetails) {});
 Gets your user information
 
 ```javascript
-api.getUserInfo(function(error, userInfo) {});
+// Callback style
+tb.getUserInfo(function(error, userInfo) {});
+
+// Async/await style
+const userInfo = await tb.getUserInfo();
 ```
 
 ### updateUserInfo
 Updates your user information
 
 ```javascript
-api.updateUserInfo(newUserdata, function(error, userInfo) {});
+// Callback style
+tb.updateUserInfo(newUserdata, function(error, userInfo) {});
+
+// Async/await style
+const userInfo = await tb.updateUserInfo(newUserdata);
 ```
 
 ### getTests
 Gets list of your latest tests
 
 ```javascript
-api.getTests(function(error, tests) {}, offset, limit);
+// Callback style
+tb.getTests(function(error, tests) {}, offset, limit);
+
+// Async/await style
+const tests = await tb.getTests();
+
+// With pagination
+const tests = await tb.getTests(10, 20); // offset: 10, limit: 20
 ```
 
 ### getTestDetails
 Gets details for a single test, pass the WebDriver's SessionID
 
 ```javascript
-api.getTestDetails(sessionId, function(error, testDetails) {});
+// Callback style
+tb.getTestDetails(sessionId, function(error, testDetails) {});
+
+// Async/await style
+const testDetails = await tb.getTestDetails(sessionId);
 ```
 
 ### updateTest
@@ -89,91 +129,150 @@ Updates a single test. For example, update the `passed` state of a test (whether
 
 ```javascript
 const testData = { "test[success]" : "1", "test[status_message]" : "test" };
-api.updateTest(testData, sessionId, function(error, testDetails) {});
+
+// Callback style
+tb.updateTest(testData, sessionId, function(error, testDetails) {});
+
+// Async/await style
+const testDetails = await tb.updateTest(testData, sessionId);
 ```
 
 ### deleteTest
 Deletes a single test, pass the WebDriver's SessionID
 
 ```javascript
-api.deleteTest(sessionId, function(error, success) {});
+// Callback style
+tb.deleteTest(sessionId, function(error, success) {});
+
+// Async/await style
+const success = await tb.deleteTest(sessionId);
 ```
 
 ### stopTest
 Stops a single test, pass the WebDriver's SessionID
 
 ```javascript
-api.stopTest(sessionId, function(error, success) {});
+// Callback style
+tb.stopTest(sessionId, function(error, success) {});
+
+// Async/await style
+const success = await tb.stopTest(sessionId);
 ```
 
 ### getTunnelList
 Gets list of active tunnels
 
 ```javascript
-api.getTunnelList(function(error, tunnelList) {});
+// Callback style
+tb.getTunnelList(function(error, tunnelList) {});
+
+// Async/await style
+const tunnelList = await tb.getTunnelList();
 ```
 
 ### deleteTunnel
 Deletes a single Tunnel
 
 ```javascript
-api.deleteTunnel(tunnelId, function(error, success) {});
+// Callback style
+tb.deleteTunnel(tunnelId, function(error, success) {});
+
+// Async/await style
+const success = await tb.deleteTunnel(tunnelId);
 ```
 
 ### getBuilds
 Retrieves the latest builds
 
 ```javascript
-api.getBuilds(function(error, builds) {}, offset, limit);
+// Callback style
+tb.getBuilds(function(error, builds) {}, offset, limit);
+
+// Async/await style
+const builds = await tb.getBuilds();
+
+// With pagination
+const builds = await tb.getBuilds(10, 20); // offset: 10, limit: 20
 ```
 
 ### getTestsForBuild
 Retrieves the tests for a single build
 
 ```javascript
-api.getTestsForBuild(buildId, function(error, tests) {});
+// Callback style
+tb.getTestsForBuild(buildId, function(error, tests) {});
+
+// Async/await style
+const tests = await tb.getTestsForBuild(buildId);
 ```
 
 ### deleteBuild
 Deletes a single build
 
 ```javascript
-api.deleteBuild(buildId, function(error, success) {});
+// Callback style
+tb.deleteBuild(buildId, function(error, success) {});
+
+// Async/await style
+const success = await tb.deleteBuild(buildId);
 ```
 
 ### uploadFile
 Uploads a local file to TestingBot Storage
 
 ```javascript
-api.uploadFile(localFilePath, function(error, appUrl) {});
+// Callback style
+tb.uploadFile(localFilePath, function(error, appUrl) {});
+
+// Async/await style
+const appUrl = await tb.uploadFile(localFilePath);
 ```
 
 ### uploadRemoteFile
 Uploads a remote file to TestingBot Storage
 
 ```javascript
-api.uploadFile(remoteFileUrl, function(error, appUrl) {});
+// Callback style
+tb.uploadRemoteFile(remoteFileUrl, function(error, appUrl) {});
+
+// Async/await style
+const appUrl = await tb.uploadRemoteFile(remoteFileUrl);
 ```
 
 ### getStorageFile
 Retrieve data from a previously uploaded file
 
 ```javascript
-api.getStorageFile(remoteFileUrl, function(error, fileDetails) {});
+// Callback style
+tb.getStorageFile(appUrl, function(error, fileDetails) {});
+
+// Async/await style
+const fileDetails = await tb.getStorageFile(appUrl);
 ```
 
 ### getStorageFiles
 Retrieve list of previously uploaded files
 
 ```javascript
-api.getStorageFiles(function(error, fileDetails) {}, offset, limit);
+// Callback style
+tb.getStorageFiles(function(error, fileDetails) {}, offset, limit);
+
+// Async/await style
+const fileDetails = await tb.getStorageFiles();
+
+// With pagination
+const fileDetails = await tb.getStorageFiles(10, 20); // offset: 10, limit: 20
 ```
 
 ### deleteStorageFile
 Delete a previously uploaded file
 
 ```javascript
-api.deleteStorageFile(appId, function(error, success) {});
+// Callback style
+tb.deleteStorageFile(appUrl, function(error, success) {});
+
+// Async/await style
+const success = await tb.deleteStorageFile(appUrl);
 ```
 
 ### getAuthenticationHashForSharing
@@ -181,70 +280,202 @@ Calculates the authentication hash for sharing, pass the WebDriver's SessionID.
 This is used to [share a test's detail page on TestingBot](https://testingbot.com/support/other/sharing)
 
 ```javascript
-api.getAuthenticationHashForSharing(sessionId);
+// This method is synchronous and returns the hash directly
+const hash = tb.getAuthenticationHashForSharing(sessionId);
 ```
 
 ### takeScreenshot
 Takes screenshots for the specific browsers
 
 ```javascript
-api.takeScreenshot(function(error, screenshots) {}, url, browsers, waitTime, resolution, fullPage, callbackURL);
+// Callback style
+tb.takeScreenshot(function(error, screenshots) {}, url, browsers, waitTime, resolution, fullPage, callbackURL);
+
+// Async/await style
+const screenshots = await tb.takeScreenshot(
+  'https://example.com',  // url
+  ['chrome', 'firefox'],  // browsers
+  5000,                   // waitTime (ms)
+  '1920x1080',           // resolution
+  true,                   // fullPage
+  'https://your-callback.com' // callbackURL
+);
 ```
 
 ### retrieveScreenshots
 Retrieves screenshots for a specific `takeScreenshot` call
 
 ```javascript
-api.retrieveScreenshots(screenshotId, function(error, screenshots) {});
+// Callback style
+tb.retrieveScreenshots(screenshotId, function(error, screenshots) {});
+
+// Async/await style
+const screenshots = await tb.retrieveScreenshots(screenshotId);
 ```
 
 ### getScreenshotList
-Retrieves all screenshots previously generate with your account
+Retrieves all screenshots previously generated with your account
 
 ```javascript
-api.getScreenshotList(function(error, screenshots) {}, offset, limit);
+// Callback style
+tb.getScreenshotList(function(error, screenshots) {}, offset, limit);
+
+// Async/await style
+const screenshots = await tb.getScreenshotList();
+
+// With pagination
+const screenshots = await tb.getScreenshotList(10, 20); // offset: 10, limit: 20
 ```
 
 ### getTeam
 Retrieves team information
 
 ```javascript
-api.getTeam(function(error, data) {});
+// Callback style
+tb.getTeam(function(error, data) {});
+
+// Async/await style
+const teamInfo = await tb.getTeam();
 ```
 
 ### getUsersInTeam
 Get all users in your team
 
 ```javascript
-api.getUsersInTeam(function(error, users) {});
+// Callback style
+tb.getUsersInTeam(function(error, users) {});
+
+// Async/await style
+const users = await tb.getUsersInTeam();
 ```
 
 ### getUserFromTeam
 Retrieves information about a specific user in your team
 
 ```javascript
-api.getUserFromTeam(userId, function(error, user) {});
+// Callback style
+tb.getUserFromTeam(userId, function(error, user) {});
+
+// Async/await style
+const user = await tb.getUserFromTeam(userId);
 ```
 
 ### createUserInTeam
 Add a user to your team. You need ADMIN rights for this.
 
 ```javascript
-api.createUserInTeam(user, function(error, result) {});
+const userData = {
+  'user[first_name]': 'John',
+  'user[last_name]': 'Doe',
+  'user[email]': 'john@example.com'
+};
+
+// Callback style
+tb.createUserInTeam(userData, function(error, result) {});
+
+// Async/await style
+const result = await tb.createUserInTeam(userData);
 ```
 
 ### updateUserInTeam
 Update a user in your team. You need ADMIN rights for this.
 
 ```javascript
-api.updateUserInTeam(userId, userData, function(error, result) {});
+const userData = {
+  'user[first_name]': 'Jane',
+  'user[last_name]': 'Smith'
+};
+
+// Callback style
+tb.updateUserInTeam(userId, userData, function(error, result) {});
+
+// Async/await style
+const result = await tb.updateUserInTeam(userId, userData);
 ```
 
 ### resetCredentials
 Resets credentials for a specific user in your team. You need ADMIN rights for this.
 
 ```javascript
-api.resetCredentials(userId, function(error, result) {});
+// Callback style
+tb.resetCredentials(userId, function(error, result) {});
+
+// Async/await style
+const result = await tb.resetCredentials(userId);
+```
+
+## Complete Example with Async/Await
+
+```javascript
+const TestingBot = require('testingbot-api');
+
+const tb = new TestingBot({
+  api_key: "your-tb-key",
+  api_secret: "your-tb-secret"
+});
+
+async function runTests() {
+  try {
+    // Get user information
+    const userInfo = await tb.getUserInfo();
+    console.log('User:', userInfo);
+
+    // Get available browsers
+    const browsers = await tb.getBrowsers();
+    console.log('Available browsers:', browsers.length);
+
+    // Get recent tests
+    const tests = await tb.getTests(0, 10);
+    console.log('Recent tests:', tests.length);
+
+    // Get test details for the first test
+    if (tests.length > 0) {
+      const testDetails = await tb.getTestDetails(tests[0].session_id);
+      console.log('Test details:', testDetails);
+    }
+
+    // Upload a file
+    const appUrl = await tb.uploadFile('/path/to/your/app.apk');
+    console.log('Uploaded file:', appUrl);
+
+    // Take screenshots
+    const screenshots = await tb.takeScreenshot(
+      'https://testingbot.com',
+      ['chrome', 'firefox'],
+      5000
+    );
+    console.log('Screenshots:', screenshots);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+runTests();
+```
+
+## Error Handling
+
+When using async/await, wrap your calls in try-catch blocks to handle errors:
+
+```javascript
+try {
+  const userInfo = await tb.getUserInfo();
+} catch (error) {
+  console.error('Failed to get user info:', error.message);
+}
+```
+
+For callback style, errors are passed as the first argument:
+
+```javascript
+tb.getUserInfo((error, userInfo) => {
+  if (error) {
+    console.error('Failed to get user info:', error.message);
+    return;
+  }
+  console.log('User info:', userInfo);
+});
 ```
 
 ## Tests
