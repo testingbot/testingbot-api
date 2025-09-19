@@ -8,16 +8,17 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        node: [ 14, 16, 18, "lts/*" ]
+        node-version: [ 18, 20, 22, "lts/*" ]
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Node version
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
       - name: Install dependencies
-        run: npm install
+        run: npm ci
       - name: Run tests
         run: npm test
         env:
