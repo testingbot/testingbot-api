@@ -95,7 +95,6 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a test with legacy data format', function(done) {
-      const that = this;
       this.api.getTests((err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
         const singleTest = response.data[0];
@@ -113,7 +112,6 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a test with object data format', function(done) {
-      const that = this;
       this.api.getTests((err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
         const singleTest = response.data[0];
