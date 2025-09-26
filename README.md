@@ -22,8 +22,8 @@ The key and secret can be obtained from [TestingBot](https://testingbot.com/memb
 const TestingBot = require('testingbot-api');
 
 const tb = new TestingBot({
-  api_key: "your-tb-key",
-  api_secret: "your-tb-secret"
+  api_key: process.env.TESTINGBOT_KEY,
+  api_secret: process.env.TESTINGBOT_SECRET
 });
 ```
 
@@ -34,7 +34,7 @@ Gets a list of browsers you can test on
 
 ```javascript
 // Callback style
-tb.getBrowsers(function(error, browsers) {});
+tb.getBrowsers(type, function(error, browsers) {});
 
 // Async/await style
 const browsers = await tb.getBrowsers();
@@ -76,6 +76,34 @@ tb.getDevice(deviceId, function(error, deviceDetails) {});
 const deviceDetails = await tb.getDevice(deviceId);
 ```
 
+### createSession
+Creates a remote browser on TestingBot and returns its CDP URL, which can be used to interface with the remote browser.
+
+```javascript
+const options = {
+  capabilities: {
+    browserName: 'chrome',
+    browserVersion: 'latest',
+    platform: 'WIN11'
+  }
+};
+
+// Callback style
+tb.createSession(options, function(error, data) {});
+
+// Async/await style
+const session = await tb.createSession(options);
+```
+
+This will return a response with this structure:
+```json
+{
+  "session_id": "cb8aaba38ddb-88fd98fca537-a0070d8f1815-175888519321-14646637",
+  "cdp_url": "wss://cloud.testingbot.com/session/cb8aaba38ddb-88fd98fca537-a0070d8f1815-175888519321-14646637"
+}
+```
+
+You can now connect to the `cdp_url` with a CDP client to instruct the remote browser.
 
 ### getUserInfo
 Gets your user information
@@ -104,7 +132,7 @@ Gets list of your latest tests
 
 ```javascript
 // Callback style
-tb.getTests(function(error, tests) {}, offset, limit);
+tb.getTests(offset, limit, function(error, tests) {});
 
 // Async/await style
 const tests = await tb.getTests();
@@ -186,7 +214,7 @@ Retrieves the latest builds
 
 ```javascript
 // Callback style
-tb.getBuilds(function(error, builds) {}, offset, limit);
+tb.getBuilds(offset, limit, function(error, builds) {});
 
 // Async/await style
 const builds = await tb.getBuilds();
@@ -255,7 +283,7 @@ Retrieve list of previously uploaded files
 
 ```javascript
 // Callback style
-tb.getStorageFiles(function(error, fileDetails) {}, offset, limit);
+tb.getStorageFiles(offset, limit, function(error, fileDetails) {});
 
 // Async/await style
 const fileDetails = await tb.getStorageFiles();
@@ -289,18 +317,19 @@ Takes screenshots for the specific browsers
 
 ```javascript
 // Callback style
-tb.takeScreenshot(function(error, screenshots) {}, url, browsers, waitTime, resolution, fullPage, callbackURL);
+tb.takeScreenshot(url, browsers, waitTime, resolution, fullPage, callbackURL, function(error, screenshots) {});
 
 // Async/await style
 const screenshots = await tb.takeScreenshot(
-  'https://example.com',  // url
-  ['chrome', 'firefox'],  // browsers
-  5000,                   // waitTime (ms)
-  '1920x1080',           // resolution
-  true,                   // fullPage
-  'https://your-callback.com' // callbackURL
+  'https://example.com',  // url - required
+  [{ browserName: 'chrome', version: 'latest', os: 'WIN11' }],  // browsers - required
+  '1920x1080',           // resolution - required
+  5000,                   // waitTime (ms) - optional
+  true,                   // fullPage - optional
+  'https://your-callback.com' // callbackURL - optional
 );
 ```
+Once a screenshot job is running, you can use `retrieveScreenshots` to poll for the results.
 
 ### retrieveScreenshots
 Retrieves screenshots for a specific `takeScreenshot` call
@@ -318,7 +347,7 @@ Retrieves all screenshots previously generated with your account
 
 ```javascript
 // Callback style
-tb.getScreenshotList(function(error, screenshots) {}, offset, limit);
+tb.getScreenshotList(offset, limit, function(error, screenshots) {});
 
 // Async/await style
 const screenshots = await tb.getScreenshotList();
@@ -328,7 +357,7 @@ const screenshots = await tb.getScreenshotList(10, 20); // offset: 10, limit: 20
 ```
 
 ### getTeam
-Retrieves team information
+Retrieves team settings
 
 ```javascript
 // Callback style
