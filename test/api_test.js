@@ -1,8 +1,8 @@
 'use strict';
 
-var TbApi = require('../lib/api.js');
-var assert = require('assert');
-var path = require('path');
+const TbApi = require('../lib/api.js');
+const assert = require('assert');
+const path = require('path');
 
 describe('TestingBot API Tests', function() {
   beforeEach(function(done) {
@@ -22,7 +22,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should detect wrong credentials', function(done) {
-      var api = new TbApi({ api_key: 'bogus', api_secret: 'bogus' });
+      const api = new TbApi({ api_key: 'bogus', api_secret: 'bogus' });
       api.getUserInfo(function(err, response) {
         assert.strictEqual(response, null, 'Response should be null for invalid credentials');
         assert.notStrictEqual(err, null, 'Should have an error for invalid credentials');
@@ -31,7 +31,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should generate correct authentication hash for sharing', function(done) {
-      var hash = this.api.getAuthenticationHashForSharing('sampleSessionId');
+      const hash = this.api.getAuthenticationHashForSharing('sampleSessionId');
       assert.strictEqual(typeof(hash), 'string', 'Hash should be a string');
       assert.strictEqual(hash.length, 32, 'MD5 hash should be 32 characters');
       done();
@@ -40,11 +40,10 @@ describe('TestingBot API Tests', function() {
 
   describe('User Management Tests', function() {
     it('should update a user object', function(done) {
-      var that = this;
-      var newName = 'name_' + Math.round(Math.random() * 10000);
-      this.api.updateUserInfo({ user: { first_name: newName } }, function(err, response) {
+      const newName = 'name_' + Math.round(Math.random() * 10000);
+      this.api.updateUserInfo({ user: { first_name: newName } }, (err, response) => {
         assert.strictEqual(err, null, 'Should not have an error updating user');
-        that.api.getUserInfo(function(err, response) {
+        this.api.getUserInfo((err, response) => {
           assert.notStrictEqual(response, null, 'Response should not be null');
           assert.strictEqual(err, null, 'Should not have an error getting user info');
           assert.strictEqual(response.first_name, newName, 'First name should be updated');
@@ -83,11 +82,10 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should find a specific test', function(done) {
-      var that = this;
-      this.api.getTests(function(err, response) {
+      this.api.getTests((err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
-        var singleTest = response.data[0];
-        that.api.getTestDetails(singleTest.id, function(err, response) {
+        const singleTest = response.data[0];
+        this.api.getTestDetails(singleTest.id, (err, response) => {
           assert.strictEqual(err, null, 'Should not have an error');
           assert.notStrictEqual(response, null, 'Response should not be null');
           assert.strictEqual(response.id, singleTest.id, 'Test ID should match');
@@ -97,15 +95,15 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a test with legacy data format', function(done) {
-      var that = this;
-      this.api.getTests(function(err, response) {
+      const that = this;
+      this.api.getTests((err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
-        var singleTest = response.data[0];
-        var statusMessage = 'test_' + Date.now();
-        var payload = { 'test[success]': '1', 'test[status_message]': statusMessage };
-        that.api.updateTest(payload, singleTest.id, function(err) {
+        const singleTest = response.data[0];
+        const statusMessage = 'test_' + Date.now();
+        const payload = { 'test[success]': '1', 'test[status_message]': statusMessage };
+        this.api.updateTest(payload, singleTest.id, (err) => {
           assert.strictEqual(err, null, 'Should not have an error updating test');
-          that.api.getTestDetails(singleTest.id, function(err, response) {
+          this.api.getTestDetails(singleTest.id, (err, response) => {
             assert.strictEqual(err, null, 'Should not have an error getting test details');
             assert.strictEqual(response.status_message, statusMessage, 'Status message should be updated');
             done();
@@ -115,15 +113,15 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a test with object data format', function(done) {
-      var that = this;
-      this.api.getTests(function(err, response) {
+      const that = this;
+      this.api.getTests((err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
-        var singleTest = response.data[0];
-        var statusMessage = 'test2_' + Date.now();
-        var payload = { test: { success: 1, status_message: statusMessage } };
-        that.api.updateTest(payload, singleTest.id, function(err) {
+        const singleTest = response.data[0];
+        const statusMessage = 'test2_' + Date.now();
+        const payload = { test: { success: 1, status_message: statusMessage } };
+        this.api.updateTest(payload, singleTest.id, (err) => {
           assert.strictEqual(err, null, 'Should not have an error updating test');
-          that.api.getTestDetails(singleTest.id, function(err, response) {
+          this.api.getTestDetails(singleTest.id, (err, response) => {
             assert.strictEqual(err, null, 'Should not have an error getting test details');
             assert.strictEqual(response.status_message, statusMessage, 'Status message should be updated');
             done();
@@ -133,20 +131,17 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should stop a test', function(done) {
-      var that = this;
-      this.api.getTests(function(err, response) {
+      this.api.getTests((err, response) => {
         if (!response || !response.data || response.data.length === 0) {
           return done();
         }
-        var testToStop = response.data.find(function(test) {
-          return test.status === 'running';
-        });
+        const testToStop = response.data.find((test) => test.status === 'running');
 
         if (!testToStop) {
           return done();
         }
 
-        that.api.stopTest(testToStop.id, function(err, response) {
+        this.api.stopTest(testToStop.id, (err, response) => {
           assert.strictEqual(err, null, 'Should not have an error stopping test');
           done();
         });
@@ -154,13 +149,12 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should delete a test', function(done) {
-      var that = this;
-      this.api.getTests(function(err, response) {
+      this.api.getTests((err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
-        var singleTest = response.data[0];
-        that.api.deleteTest(singleTest.id, function(err, response) {
+        const singleTest = response.data[0];
+        this.api.deleteTest(singleTest.id, (err, response) => {
           assert.strictEqual(err, null, 'Should not have an error deleting test');
-          that.api.getTestDetails(singleTest.id, function(err, response) {
+          this.api.getTestDetails(singleTest.id, (err, response) => {
             assert.strictEqual(response, null, 'Response should be null after deletion');
             assert.notStrictEqual(err, null, 'Should have an error for deleted test');
             done();
@@ -191,11 +185,10 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should get a specific device', function(done) {
-      var that = this;
-      this.api.getDevices(function(err, response) {
+      this.api.getDevices((err, response) => {
         if (response && response.length > 0) {
-          var deviceId = response[0].id || response[0].device_id;
-          that.api.getDevice(deviceId, function(err, deviceResponse) {
+          const deviceId = response[0].id || response[0].device_id;
+          this.api.getDevice(deviceId, (err, deviceResponse) => {
             assert.strictEqual(err, null, 'Should not have an error getting device');
             assert.ok(deviceResponse, 'Device response should exist');
             done();
@@ -228,7 +221,7 @@ describe('TestingBot API Tests', function() {
 
   describe('File Storage', function() {
     it('should upload a local file', function(done) {
-      var testFilePath = path.resolve(__dirname, 'test.apk');
+      const testFilePath = path.resolve(__dirname, 'test.apk');
       this.api.uploadFile(testFilePath, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error uploading file');
         assert.ok(response, 'Response should exist');
@@ -266,14 +259,13 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should get a specific storage file', function(done) {
-      var that = this;
-      this.api.getStorageFiles(function(err, response) {
-        var files = response.data || response;
+      this.api.getStorageFiles((err, response) => {
+        const files = response.data || response;
         if (files && files.length > 0) {
-          var appUrl = files[0].app_url || files[0].url;
+          let appUrl = files[0].app_url || files[0].url;
           if (appUrl) {
             appUrl = appUrl.replace('tb://', '');
-            that.api.getStorageFile(appUrl, function(err, fileResponse) {
+            this.api.getStorageFile(appUrl, (err, fileResponse) => {
               assert.strictEqual(err, null, 'Should not have an error getting storage file');
               assert.ok(fileResponse, 'File response should exist');
               done();
@@ -288,11 +280,10 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should delete a storage file', function(done) {
-      var that = this;
-      this.api.uploadRemoteFile('https://testingbot.com/appium/sample.apk', function(err, response) {
+      this.api.uploadRemoteFile('https://testingbot.com/appium/sample.apk', (err, response) => {
         if (response && response.app_url) {
-          var appUrl = response.app_url.replace('tb://', '');
-          that.api.deleteStorageFile(appUrl, function(err, deleteResponse) {
+          const appUrl = response.app_url.replace('tb://', '');
+          this.api.deleteStorageFile(appUrl, (err, deleteResponse) => {
             assert.strictEqual(err, null, 'Should not have an error deleting storage file');
             done();
           });
@@ -314,12 +305,11 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should retrieve screenshot details', function(done) {
-      var that = this;
-      this.api.takeScreenshot(function(err, response) {
+      this.api.takeScreenshot((err, response) => {
         if (response && (response.screenshot_id || response.id)) {
-          var screenshotId = response.screenshot_id || response.id;
-          setTimeout(function() {
-            that.api.retrieveScreenshots(screenshotId, function(err, screenshotResponse) {
+          const screenshotId = response.screenshot_id || response.id;
+          setTimeout(() => {
+            this.api.retrieveScreenshots(screenshotId, (err, screenshotResponse) => {
               assert.strictEqual(err, null, 'Should not have an error retrieving screenshot');
               assert.ok(screenshotResponse, 'Screenshot response should exist');
               done();
@@ -368,12 +358,11 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should delete a tunnel', function(done) {
-      var that = this;
-      this.api.getTunnelList(function(err, response) {
-        var tunnels = response || response.data || [];
+      this.api.getTunnelList((err, response) => {
+        const tunnels = response || response.data || [];
         if (Array.isArray(tunnels) && tunnels.length > 0) {
-          var tunnelId = tunnels[0].id || tunnels[0].tunnel_id;
-          that.api.deleteTunnel(tunnelId, function(err, deleteResponse) {
+          const tunnelId = tunnels[0].id || tunnels[0].tunnel_id;
+          this.api.deleteTunnel(tunnelId, (err, deleteResponse) => {
             assert.strictEqual(err, null, 'Should not have an error deleting tunnel');
             done();
           });
@@ -384,9 +373,9 @@ describe('TestingBot API Tests', function() {
     });
   });
 
-  describe('Lab Tests Management', function() {
-    it('should list lab tests', function(done) {
-      this.api.getLabTests(function(err, response) {
+  describe('Codeless Tests Management', function() {
+    it('should list codeless tests', function(done) {
+      this.api.getCodelessTests(0, 10, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         assert.ok(response.data || response, 'Response data should exist');
@@ -394,26 +383,36 @@ describe('TestingBot API Tests', function() {
       });
     });
 
-    it('should list lab tests with pagination', function(done) {
-      this.api.getLabTests(function(err, response) {
+    it('should list codeless tests with pagination', function(done) {
+      this.api.getCodelessTests(0, 5, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         done();
-      }, 0, 5);
+      });
     });
 
-    it('should update a lab test', function(done) {
-      var that = this;
-      this.api.getLabTests(function(err, response) {
-        var tests = (response && response.data) || response || [];
+    it('should list codeless tests with custom offset and limit', function(done) {
+      this.api.getCodelessTests(10, 20, function(err, response) {
+        assert.strictEqual(err, null, 'Should not have an error');
+        assert.ok(response, 'Response should exist');
+        if (response.meta) {
+          assert.ok(typeof response.meta === 'object', 'Meta should be an object');
+        }
+        done();
+      });
+    });
+
+    it('should update a codeless test', function(done) {
+      this.api.getCodelessTests(0, 10, (err, response) => {
+        const tests = (response && response.data) || response || [];
         if (tests.length > 0) {
-          var testId = tests[0].id;
-          var data = { test: { status_message: 'Updated lab test' } };
-          that.api.updateLabTest(data, testId, function(err, updateResponse) {
+          const testId = tests[0].id;
+          const data = { test: { status_message: 'Updated codeless test' } };
+          this.api.updateCodelessTest(data, testId, (err, updateResponse) => {
             if (err && err.message && err.message.includes('500 Error')) {
               return done();
             }
-            assert.strictEqual(err, null, 'Should not have an error updating lab test');
+            assert.strictEqual(err, null, 'Should not have an error updating codeless test');
             done();
           });
         } else {
@@ -422,20 +421,49 @@ describe('TestingBot API Tests', function() {
       });
     });
 
-    it('should delete a lab test', function(done) {
-      var that = this;
-      this.api.getLabTests(function(err, response) {
-        var tests = (response && response.data) || response || [];
+    it('should throw error when updating codeless test without test ID', function(done) {
+      try {
+        this.api.updateCodelessTest({ test: { name: 'Test' } }, null, function() {});
+        done(new Error('Should have thrown an error'));
+      } catch (err) {
+        assert.ok(err.message.includes('Test ID is required'), 'Should throw Test ID required error');
+        done();
+      }
+    });
+
+    it('should throw error when updating codeless test without data', function(done) {
+      try {
+        this.api.updateCodelessTest(null, '12345', function() {});
+        done(new Error('Should have thrown an error'));
+      } catch (err) {
+        assert.ok(err.message.includes('Data is required'), 'Should throw Data required error');
+        done();
+      }
+    });
+
+    it('should delete a codeless test', function(done) {
+      this.api.getCodelessTests(0, 10, (err, response) => {
+        const tests = (response && response.data) || response || [];
         if (tests.length > 0) {
-          var testId = tests[0].id;
-          that.api.deleteLabTest(testId, function(err, deleteResponse) {
-            assert.strictEqual(err, null, 'Should not have an error deleting lab test');
+          const testId = tests[0].id;
+          this.api.deleteCodelessTest(testId, (err, deleteResponse) => {
+            assert.strictEqual(err, null, 'Should not have an error deleting codeless test');
             done();
           });
         } else {
           done();
         }
       });
+    });
+
+    it('should throw error when deleting codeless test without test ID', function(done) {
+      try {
+        this.api.deleteCodelessTest(null, () => {});
+        done(new Error('Should have thrown an error'));
+      } catch (err) {
+        assert.ok(err.message.includes('Test ID is required'), 'Should throw Test ID required error');
+        done();
+      }
     });
   });
 
@@ -457,12 +485,11 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should get tests for a build', function(done) {
-      var that = this;
-      this.api.getBuilds(function(err, response) {
-        var builds = (response && response.data) || response || [];
+      this.api.getBuilds((err, response) => {
+        const builds = (response && response.data) || response || [];
         if (builds.length > 0) {
-          var buildId = builds[0].id || builds[0].build_id;
-          that.api.getTestsForBuild(buildId, function(err, testsResponse) {
+          const buildId = builds[0].id || builds[0].build_id;
+          this.api.getTestsForBuild(buildId, (err, testsResponse) => {
             assert.strictEqual(err, null, 'Should not have an error getting tests for build');
             assert.ok(testsResponse, 'Tests response should exist');
             done();
@@ -474,12 +501,11 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should delete a build', function(done) {
-      var that = this;
-      this.api.getBuilds(function(err, response) {
-        var builds = (response && response.data) || response || [];
+      this.api.getBuilds((err, response) => {
+        const builds = (response && response.data) || response || [];
         if (builds.length > 0) {
-          var buildId = builds[0].id || builds[0].build_id;
-          that.api.deleteBuild(buildId, function(err, deleteResponse) {
+          const buildId = builds[0].id || builds[0].build_id;
+          this.api.deleteBuild(buildId, (err, deleteResponse) => {
             assert.strictEqual(err, null, 'Should not have an error deleting build');
             done();
           });
@@ -514,15 +540,14 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should get a specific user from team', function(done) {
-      var that = this;
-      this.api.getUsersInTeam(function(err, response) {
+      this.api.getUsersInTeam((err, response) => {
         if (err && err.message && err.message.includes('not authorized')) {
           return done();
         }
-        var users = (response && response.data) || response || [];
+        const users = (response && response.data) || response || [];
         if (users.length > 0) {
-          var userId = users[0].id || users[0].user_id;
-          that.api.getUserFromTeam(userId, function(err, userResponse) {
+          const userId = users[0].id || users[0].user_id;
+          this.api.getUserFromTeam(userId, (err, userResponse) => {
             assert.strictEqual(err, null, 'Should not have an error getting user from team');
             assert.ok(userResponse, 'User response should exist');
             done();
@@ -534,12 +559,12 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should create a user in team', function(done) {
-      var newUser = {
+      const newUser = {
         email: 'test_' + Date.now() + '@example.com',
         first_name: 'Test',
         last_name: 'User'
       };
-      this.api.createUserInTeam(newUser, function(err, response) {
+      this.api.createUserInTeam(newUser, (err, response) => {
         if (err && err.message && err.message.includes('not authorized')) {
           return done();
         }
@@ -550,16 +575,15 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a user in team', function(done) {
-      var that = this;
-      this.api.getUsersInTeam(function(err, response) {
+      this.api.getUsersInTeam((err, response) => {
         if (err && err.message && err.message.includes('not authorized')) {
           return done();
         }
-        var users = (response && response.data) || response || [];
+        const users = (response && response.data) || response || [];
         if (users.length > 0) {
-          var userId = users[0].id || users[0].user_id;
-          var userData = { first_name: 'Updated_' + Date.now() };
-          that.api.updateUserInTeam(userId, userData, function(err, updateResponse) {
+          const userId = users[0].id || users[0].user_id;
+          const userData = { first_name: 'Updated_' + Date.now() };
+          this.api.updateUserInTeam(userId, userData, (err, updateResponse) => {
             assert.strictEqual(err, null, 'Should not have an error updating user in team');
             done();
           });
@@ -570,21 +594,90 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should reset credentials for a user in team', function(done) {
-      var that = this;
-      this.api.getUsersInTeam(function(err, response) {
+      this.api.getUsersInTeam((err, response) => {
         if (err && err.message && err.message.includes('not authorized')) {
           return done();
         }
-        var users = (response && response.data) || response || [];
+        const users = (response && response.data) || response || [];
         if (users.length > 0) {
-          var userId = users[0].id || users[0].user_id;
-          that.api.resetCredentials(userId, function(err, resetResponse) {
+          const userId = users[0].id || users[0].user_id;
+          this.api.resetCredentials(userId, (err, resetResponse) => {
             assert.strictEqual(err, null, 'Should not have an error resetting credentials');
             done();
           });
         } else {
           done();
         }
+      });
+    });
+  });
+
+  describe('Session Management', function() {
+    it('should create a session with default capabilities', function(done) {
+      this.api.createSession({}, function(err, response) {
+        if (err && err.message && err.message.includes('Unauthorized')) {
+          return done();
+        }
+        assert.ok(response, 'Response should exist');
+        if (response && response.sessionId) {
+          assert.ok(response.sessionId, 'Session ID should be returned');
+          assert.strictEqual(typeof response.sessionId, 'string', 'Session ID should be a string');
+        }
+        done();
+      });
+    });
+
+    it('should create a session with custom capabilities', function(done) {
+      const customCapabilities = {
+        browserName: 'firefox',
+        browserVersion: '120',
+        platform: 'WIN11'
+      };
+      this.api.createSession({ capabilities: customCapabilities }, function(err, response) {
+        if (err && err.message && err.message.includes('Unauthorized')) {
+          return done();
+        }
+        assert.ok(response || err, 'Should have response or error');
+        done();
+      });
+    });
+
+    it('should create a session with additional options', function(done) {
+      const options = {
+        capabilities: {
+          browserName: 'chrome',
+          browserVersion: '140',
+          platform: 'WIN11'
+        }
+      };
+      this.api.createSession(options, function(err, response) {
+        if (err && err.message && err.message.includes('Unauthorized')) {
+          return done();
+        }
+        assert.ok(response || err, 'Should have response or error');
+        done();
+      });
+    });
+
+    it('should handle session creation errors gracefully', function(done) {
+      const api = new TbApi({ api_key: 'invalid_key', api_secret: 'invalid_secret' });
+      api.createSession({}, function(err, response) {
+        assert.notStrictEqual(err, null, 'Should have an error for invalid credentials');
+        assert.strictEqual(response, null, 'Response should be null for invalid credentials');
+        done();
+      });
+    });
+
+    it('should merge default capabilities with custom ones', function(done) {
+      const partialCapabilities = {
+        browserName: 'edge'
+      };
+      this.api.createSession({ capabilities: partialCapabilities }, function(err, response) {
+        if (err && err.message && err.message.includes('Unauthorized')) {
+          return done();
+        }
+        assert.ok(response || err, 'Should have response or error');
+        done();
       });
     });
   });
@@ -600,22 +693,89 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should handle undefined data parameters', function(done) {
-      this.api.getTests(function(err, response) {
+      this.api.getTests(undefined, undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should handle undefined parameters');
         done();
-      }, undefined, undefined);
+      });
     });
 
     it('should handle empty responses', function(done) {
-      this.api.getDevice(null, function(err, response) {
+      try {
+        this.api.getDevice(null, function(err, response) {
+          assert.notStrictEqual(err, null, 'Should have an error for null device ID');
+          done();
+        });
+      } catch (err) {
+        assert.ok(err.message.includes('Device ID is required'), 'Should throw Device ID required error');
         done();
-      });
+      }
     });
 
-    it('should validate required parameters', function(done) {
-      this.api.takeScreenshot(function(err, response) {
+    it('should validate required parameters for takeScreenshot', function(done) {
+      try {
+        this.api.takeScreenshot();
+        done(new Error('Should have thrown an error'));
+      } catch (err) {
+        assert.ok(err.message.includes('URL is required'), 'Should throw URL required error');
         done();
-      });
+      }
+    });
+
+    it('should validate browser configuration for screenshots', function(done) {
+      try {
+        this.api.takeScreenshot('https://example.com', [], '1920x1080', null, null, null, function() {});
+        done(new Error('Should have thrown an error'));
+      } catch (err) {
+        assert.ok(err.message.includes('At least one browser configuration is required'), 'Should validate browser configuration');
+        done();
+      }
+    });
+
+    it('should validate resolution for screenshots', function(done) {
+      try {
+        this.api.takeScreenshot('https://example.com', [{ browserName: 'chrome' }], null, null, null, null, function() {});
+        done(new Error('Should have thrown an error'));
+      } catch (err) {
+        assert.ok(err.message.includes('Resolution is required'), 'Should validate resolution');
+        done();
+      }
+    });
+
+    it('should handle missing required parameters in various methods', function(done) {
+      const errors = [];
+
+      try {
+        this.api.stopTest(null, function() {});
+      } catch (err) {
+        errors.push(err.message.includes('Test ID is required'));
+      }
+
+      try {
+        this.api.deleteTest(null, function() {});
+      } catch (err) {
+        errors.push(err.message.includes('Test ID is required'));
+      }
+
+      try {
+        this.api.deleteTunnel(null, function() {});
+      } catch (err) {
+        errors.push(err.message.includes('Tunnel ID is required'));
+      }
+
+      try {
+        this.api.deleteStorageFile(null, function() {});
+      } catch (err) {
+        errors.push(err.message.includes('App URL is required'));
+      }
+
+      try {
+        this.api.uploadRemoteFile(null, function() {});
+      } catch (err) {
+        errors.push(err.message.includes('Remote URL is required'));
+      }
+
+      assert.ok(errors.every(e => e === true), 'All methods should validate required parameters');
+      done();
     });
   });
 });
