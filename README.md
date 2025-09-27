@@ -470,8 +470,8 @@ async function runTests() {
     // Take screenshots
     const screenshots = await tb.takeScreenshot(
       'https://testingbot.com',
-      ['chrome', 'firefox'],
-      5000
+      [{ browserName: 'chrome', version: 'latest', os: 'WIN11' }],
+      '1280x1024'
     );
     console.log('Screenshots:', screenshots);
 
