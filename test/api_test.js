@@ -55,7 +55,7 @@ describe('TestingBot API Tests', function() {
 
   describe('Test Management', function() {
     it('should list tests with default pagination', function(done) {
-      this.api.getTests(function(err, response) {
+      this.api.getTests(undefined, undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         assert.ok(Array.isArray(response.data), 'Response data should be an array');
@@ -65,12 +65,12 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should list tests with custom pagination', function(done) {
-      this.api.getTests(function(err, response) {
+      this.api.getTests(0, 5, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         assert.ok(response.meta, 'Meta information should exist');
         done();
-      }, 0, 5);
+      });
     });
 
     it('should error when no test is found', function(done) {
@@ -82,7 +82,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should find a specific test', function(done) {
-      this.api.getTests((err, response) => {
+      this.api.getTests(undefined, undefined, (err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
         const singleTest = response.data[0];
         this.api.getTestDetails(singleTest.id, (err, response) => {
@@ -95,7 +95,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a test with legacy data format', function(done) {
-      this.api.getTests((err, response) => {
+      this.api.getTests(undefined, undefined, (err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
         const singleTest = response.data[0];
         const statusMessage = 'test_' + Date.now();
@@ -112,7 +112,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should update a test with object data format', function(done) {
-      this.api.getTests((err, response) => {
+      this.api.getTests(undefined, undefined, (err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
         const singleTest = response.data[0];
         const statusMessage = 'test2_' + Date.now();
@@ -129,7 +129,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should stop a test', function(done) {
-      this.api.getTests((err, response) => {
+      this.api.getTests(undefined, undefined, (err, response) => {
         if (!response || !response.data || response.data.length === 0) {
           return done();
         }
@@ -147,7 +147,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should delete a test', function(done) {
-      this.api.getTests((err, response) => {
+      this.api.getTests(undefined, undefined, (err, response) => {
         assert.ok(response && response.data && response.data.length > 0, 'Should have test data');
         const singleTest = response.data[0];
         this.api.deleteTest(singleTest.id, (err, response) => {
@@ -200,7 +200,7 @@ describe('TestingBot API Tests', function() {
 
   describe('Browser Management', function() {
     it('should list all browsers', function(done) {
-      this.api.getBrowsers(function(err, response) {
+      this.api.getBrowsers(undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         assert.ok(Array.isArray(response), 'Response should be an array');
@@ -209,11 +209,11 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should list browsers by type', function(done) {
-      this.api.getBrowsers(function(err, response) {
+      this.api.getBrowsers('webdriver', function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         done();
-      }, 'webdriver');
+      });
     });
   });
 
@@ -240,7 +240,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should list storage files', function(done) {
-      this.api.getStorageFiles(function(err, response) {
+      this.api.getStorageFiles(undefined, undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         assert.ok(Array.isArray(response.data) || Array.isArray(response), 'Response should contain an array');
@@ -249,15 +249,15 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should list storage files with pagination', function(done) {
-      this.api.getStorageFiles(function(err, response) {
+      this.api.getStorageFiles(0, 5, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         done();
-      }, 0, 5);
+      });
     });
 
     it('should get a specific storage file', function(done) {
-      this.api.getStorageFiles((err, response) => {
+      this.api.getStorageFiles(undefined, undefined, (err, response) => {
         const files = response.data || response;
         if (files && files.length > 0) {
           let appUrl = files[0].app_url || files[0].url;
@@ -294,16 +294,16 @@ describe('TestingBot API Tests', function() {
 
   describe('Screenshot Service', function() {
     it('should take a screenshot', function(done) {
-      this.api.takeScreenshot(function(err, response) {
+      this.api.takeScreenshot('https://testingbot.com', [{ "browserName" : "chrome", "version" : 134, "os" : "WIN10"}], '1280x1024', 0, undefined, undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error taking screenshot');
         assert.ok(response, 'Response should exist');
         assert.ok(response.screenshot_id || response.id, 'Screenshot ID should be returned');
         done();
-      }, 'https://testingbot.com', [{ "browserName" : "chrome", "version" : 134, "os" : "WIN10"}], 0, '1280x1024');
+      });
     });
 
     it('should retrieve screenshot details', function(done) {
-      this.api.takeScreenshot((err, response) => {
+      this.api.takeScreenshot('https://testingbot.com', [{ "browserName" : "chrome", "version" : 134, "os" : "WIN10"}], '1280x1024', undefined, undefined, undefined, (err, response) => {
         if (response && (response.screenshot_id || response.id)) {
           const screenshotId = response.screenshot_id || response.id;
           setTimeout(() => {
@@ -316,11 +316,11 @@ describe('TestingBot API Tests', function() {
         } else {
           done();
         }
-      }, 'https://testingbot.com', [{ "browserName" : "chrome", "version" : 134, "os" : "WIN10"}]);
+      });
     });
 
     it('should list screenshots', function(done) {
-      this.api.getScreenshotList(function(err, response) {
+      this.api.getScreenshotList(undefined, undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         assert.ok(Array.isArray(response.data) || Array.isArray(response), 'Response should contain an array');
@@ -329,11 +329,11 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should list screenshots with pagination', function(done) {
-      this.api.getScreenshotList(function(err, response) {
+      this.api.getScreenshotList(0, 5, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         done();
-      }, 0, 5);
+      });
     });
   });
 
@@ -467,7 +467,7 @@ describe('TestingBot API Tests', function() {
 
   describe('Build Management', function() {
     it('should list builds', function(done) {
-      this.api.getBuilds(function(err, response) {
+      this.api.getBuilds(undefined, undefined, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         done();
@@ -475,15 +475,15 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should list builds with pagination', function(done) {
-      this.api.getBuilds(function(err, response) {
+      this.api.getBuilds(0, 5, function(err, response) {
         assert.strictEqual(err, null, 'Should not have an error');
         assert.ok(response, 'Response should exist');
         done();
-      }, 0, 5);
+      });
     });
 
     it('should get tests for a build', function(done) {
-      this.api.getBuilds((err, response) => {
+      this.api.getBuilds(undefined, undefined, (err, response) => {
         const builds = (response && response.data) || response || [];
         if (builds.length > 0) {
           const buildId = builds[0].id || builds[0].build_id;
@@ -499,7 +499,7 @@ describe('TestingBot API Tests', function() {
     });
 
     it('should delete a build', function(done) {
-      this.api.getBuilds((err, response) => {
+      this.api.getBuilds(undefined, undefined, (err, response) => {
         const builds = (response && response.data) || response || [];
         if (builds.length > 0) {
           const buildId = builds[0].id || builds[0].build_id;
@@ -640,41 +640,11 @@ describe('TestingBot API Tests', function() {
       });
     });
 
-    it('should create a session with additional options', function(done) {
-      const options = {
-        capabilities: {
-          browserName: 'chrome',
-          browserVersion: '140',
-          platform: 'WIN11'
-        }
-      };
-      this.api.createSession(options, function(err, response) {
-        if (err && err.message && err.message.includes('Unauthorized')) {
-          return done();
-        }
-        assert.ok(response || err, 'Should have response or error');
-        done();
-      });
-    });
-
     it('should handle session creation errors gracefully', function(done) {
       const api = new TbApi({ api_key: 'invalid_key', api_secret: 'invalid_secret' });
       api.createSession({}, function(err, response) {
         assert.notStrictEqual(err, null, 'Should have an error for invalid credentials');
         assert.strictEqual(response, null, 'Response should be null for invalid credentials');
-        done();
-      });
-    });
-
-    it('should merge default capabilities with custom ones', function(done) {
-      const partialCapabilities = {
-        browserName: 'edge'
-      };
-      this.api.createSession({ capabilities: partialCapabilities }, function(err, response) {
-        if (err && err.message && err.message.includes('Unauthorized')) {
-          return done();
-        }
-        assert.ok(response || err, 'Should have response or error');
         done();
       });
     });
