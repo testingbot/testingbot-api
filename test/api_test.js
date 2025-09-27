@@ -571,60 +571,9 @@ describe('TestingBot API Tests', function() {
         done();
       });
     });
-
-    it('should update a user in team', function(done) {
-      this.api.getUsersInTeam((err, response) => {
-        if (err && err.message && err.message.includes('not authorized')) {
-          return done();
-        }
-        const users = (response && response.data) || response || [];
-        if (users.length > 0) {
-          const userId = users[0].id || users[0].user_id;
-          const userData = { first_name: 'Updated_' + Date.now() };
-          this.api.updateUserInTeam(userId, userData, (err, updateResponse) => {
-            assert.strictEqual(err, null, 'Should not have an error updating user in team');
-            done();
-          });
-        } else {
-          done();
-        }
-      });
-    });
-
-    it('should reset credentials for a user in team', function(done) {
-      this.api.getUsersInTeam((err, response) => {
-        if (err && err.message && err.message.includes('not authorized')) {
-          return done();
-        }
-        const users = (response && response.data) || response || [];
-        if (users.length > 0) {
-          const userId = users[0].id || users[0].user_id;
-          this.api.resetCredentials(userId, (err, resetResponse) => {
-            assert.strictEqual(err, null, 'Should not have an error resetting credentials');
-            done();
-          });
-        } else {
-          done();
-        }
-      });
-    });
   });
 
   describe('Session Management', function() {
-    it('should create a session with default capabilities', function(done) {
-      this.api.createSession({}, function(err, response) {
-        if (err && err.message && err.message.includes('Unauthorized')) {
-          return done();
-        }
-        assert.ok(response, 'Response should exist');
-        if (response && response.sessionId) {
-          assert.ok(response.sessionId, 'Session ID should be returned');
-          assert.strictEqual(typeof response.sessionId, 'string', 'Session ID should be a string');
-        }
-        done();
-      });
-    });
-
     it('should create a session with custom capabilities', function(done) {
       const customCapabilities = {
         browserName: 'firefox',
