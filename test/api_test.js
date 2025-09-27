@@ -574,17 +574,16 @@ describe('TestingBot API Tests', function() {
   });
 
   describe('Session Management', function() {
+    this.timeout(10000);
     it('should create a session with custom capabilities', function(done) {
       const customCapabilities = {
-        browserName: 'firefox',
-        browserVersion: '120',
-        platform: 'WIN11'
+        browserName: 'chrome',
+        browserVersion: 'latest',
+        platform: 'LINUX'
       };
       this.api.createSession({ capabilities: customCapabilities }, function(err, response) {
-        if (err && err.message && err.message.includes('Unauthorized')) {
-          return done();
-        }
-        assert.ok(response || err, 'Should have response or error');
+        assert.strictEqual(err, null, 'Should not have an error creating session');
+        assert.ok(response, 'Response should exist');
         done();
       });
     });
