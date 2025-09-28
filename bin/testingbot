@@ -1,0 +1,441 @@
+#!/usr/bin/env node
+'use strict';
+
+const TestingBot = require('../index.js');
+const { version } = require('../package.json');
+const fs = require('fs');
+const path = require('path');
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+const command = args[0];
+const subcommand = args[1];
+
+// Initialize API with credentials
+const api = new TestingBot();
+
+// Check if credentials are configured
+function checkCredentials() {
+  if (!api.options.api_key || !api.options.api_secret) {
+    console.error('Error: TestingBot API credentials not found.');
+    console.error('Please set TB_KEY and TB_SECRET environment variables or configure ~/.testingbot');
+    process.exit(1);
+  }
+}
+
+// Format JSON output
+function outputResult(err, data, options = {}) {
+  if (err) {
+    console.error('Error:', err.message || err);
+    process.exit(1);
+  }
+
+  if (options.quiet) {
+    // Minimal output for scripting
+    if (Array.isArray(data)) {
+      data.forEach(item => console.log(item.id || item.name || JSON.stringify(item)));
+    } else if (data.id) {
+      console.log(data.id);
+    } else {
+      console.log(JSON.stringify(data, null, 2));
+    }
+  } else {
+    // Pretty print JSON
+    console.log(JSON.stringify(data, null, 2));
+  }
+}
+
+// Help text
+const helpText = `
+TestingBot API CLI v${version}
+
+Usage: testingbot <command> [subcommand] [options]
+
+Authentication:
+  Set TB_KEY and TB_SECRET environment variables or configure ~/.testingbot
+
+Commands:
+  user                    User account operations
+    info                  Get current user information
+    update <data>         Update user information (JSON string)
+
+  tests                   Test management operations
+    list [offset] [limit] List tests (default: offset=0, limit=10)
+    get <id>              Get test details by ID
+    update <id> <data>    Update test (data as JSON string)
+    delete <id>           Delete a test
+    stop <id>             Stop a running test
+
+  devices                 Device management
+    list                  List all available devices
+    available             List currently available devices
+    get <id>              Get specific device details
+
+  browsers                Browser management
+    list [type]           List browsers (type: all|web|mobile|real)
+
+  storage                 File storage operations
+    upload <file>         Upload a file to TestingBot storage
+    list [offset] [limit] List stored files
+    get <id>              Get storage file details
+    delete <id>           Delete a storage file
+
+  screenshot              Screenshot service
+    take <url> <config>   Take screenshot (config as JSON)
+    get <id>              Get screenshot details
+    list [offset] [limit] List screenshots
+
+  tunnel                  Tunnel management
+    info                  Get tunnel information
+    list                  List all tunnels
+    delete <id>           Delete a tunnel
+
+  builds                  Build management
+    list [offset] [limit] List builds
+    get <id>              Get tests for a build
+    delete <id>           Delete a build
+
+  team                    Team management
+    info                  Get team information
+    users                 List users in team
+    get-user <id>         Get specific user from team
+    create-user <data>    Create user (data as JSON)
+
+  session                 Session operations
+    create <capabilities> Create new session (capabilities as JSON)
+
+  lab                     Codeless test management
+    list [offset] [limit] List codeless tests
+    update <id> <data>    Update codeless test
+    delete <id>           Delete codeless test
+
+  help, -h, --help        Show this help message
+  version, -v, --version  Show version
+
+Examples:
+  testingbot user info
+  testingbot tests list
+  testingbot tests get 12345
+  testingbot devices available
+  testingbot browsers list web
+  testingbot storage upload ./test.zip
+  testingbot screenshot take "https://example.com" '{"browserName":"chrome"}'
+`;
+
+// Command handlers
+const commands = {
+  user: {
+    info: () => {
+      checkCredentials();
+      api.getUserInfo(outputResult);
+    },
+    update: (data) => {
+      checkCredentials();
+      if (!data) {
+        console.error('Error: Update data required (as JSON string)');
+        process.exit(1);
+      }
+      try {
+        const parsedData = JSON.parse(data);
+        api.updateUserInfo(parsedData, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON data');
+        process.exit(1);
+      }
+    }
+  },
+
+  tests: {
+    list: (offset = 0, limit = 10) => {
+      checkCredentials();
+      api.getTests(parseInt(offset), parseInt(limit), outputResult);
+    },
+    get: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Test ID required');
+        process.exit(1);
+      }
+      api.getTestDetails(id, outputResult);
+    },
+    update: (id, data) => {
+      checkCredentials();
+      if (!id || !data) {
+        console.error('Error: Test ID and update data required');
+        process.exit(1);
+      }
+      try {
+        const parsedData = JSON.parse(data);
+        api.updateTest(parsedData, id, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON data');
+        process.exit(1);
+      }
+    },
+    delete: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Test ID required');
+        process.exit(1);
+      }
+      api.deleteTest(id, outputResult);
+    },
+    stop: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Test ID required');
+        process.exit(1);
+      }
+      api.stopTest(id, outputResult);
+    }
+  },
+
+  devices: {
+    list: () => {
+      checkCredentials();
+      api.getDevices(outputResult);
+    },
+    available: () => {
+      checkCredentials();
+      api.getAvailableDevices(outputResult);
+    },
+    get: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Device ID required');
+        process.exit(1);
+      }
+      api.getDevice(id, outputResult);
+    }
+  },
+
+  browsers: {
+    list: (type = 'all') => {
+      checkCredentials();
+      if (!['all', 'web', 'mobile', 'real'].includes(type)) {
+        console.error('Error: Invalid browser type. Use: all, web, mobile, or real');
+        process.exit(1);
+      }
+      api.getBrowsers(outputResult, type);
+    }
+  },
+
+  storage: {
+    upload: (filePath) => {
+      checkCredentials();
+      if (!filePath) {
+        console.error('Error: File path required');
+        process.exit(1);
+      }
+      if (!fs.existsSync(filePath)) {
+        console.error('Error: File not found:', filePath);
+        process.exit(1);
+      }
+      api.uploadFile(filePath, outputResult);
+    },
+    list: (offset = 0, limit = 10) => {
+      checkCredentials();
+      api.getStorageFiles(parseInt(offset), parseInt(limit), outputResult);
+    },
+    get: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Storage file ID required');
+        process.exit(1);
+      }
+      api.getStorageFile(id, outputResult);
+    },
+    delete: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Storage file ID required');
+        process.exit(1);
+      }
+      api.deleteStorageFile(id, outputResult);
+    }
+  },
+
+  screenshot: {
+    take: (url, config) => {
+      checkCredentials();
+      if (!url || !config) {
+        console.error('Error: URL and config required');
+        process.exit(1);
+      }
+      try {
+        const parsedConfig = JSON.parse(config);
+        api.takeScreenshot(url, parsedConfig, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON config');
+        process.exit(1);
+      }
+    },
+    get: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Screenshot ID required');
+        process.exit(1);
+      }
+      api.getScreenshot(id, outputResult);
+    },
+    list: (offset = 0, limit = 10) => {
+      checkCredentials();
+      api.getScreenshots(parseInt(offset), parseInt(limit), outputResult);
+    }
+  },
+
+  tunnel: {
+    info: () => {
+      checkCredentials();
+      api.getTunnel(outputResult);
+    },
+    list: () => {
+      checkCredentials();
+      api.getTunnelList(outputResult);
+    },
+    delete: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Tunnel ID required');
+        process.exit(1);
+      }
+      api.deleteTunnel(id, outputResult);
+    }
+  },
+
+  builds: {
+    list: (offset = 0, limit = 10) => {
+      checkCredentials();
+      api.getBuilds(parseInt(offset), parseInt(limit), outputResult);
+    },
+    get: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Build ID required');
+        process.exit(1);
+      }
+      api.getTestsForBuild(id, outputResult);
+    },
+    delete: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Build ID required');
+        process.exit(1);
+      }
+      api.deleteBuild(id, outputResult);
+    }
+  },
+
+  team: {
+    info: () => {
+      checkCredentials();
+      api.getTeam(outputResult);
+    },
+    users: () => {
+      checkCredentials();
+      api.getUsersInTeam(outputResult);
+    },
+    'get-user': (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: User ID required');
+        process.exit(1);
+      }
+      api.getUserFromTeam(id, outputResult);
+    },
+    'create-user': (data) => {
+      checkCredentials();
+      if (!data) {
+        console.error('Error: User data required (as JSON string)');
+        process.exit(1);
+      }
+      try {
+        const parsedData = JSON.parse(data);
+        api.createUserInTeam(parsedData, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON data');
+        process.exit(1);
+      }
+    }
+  },
+
+  session: {
+    create: (capabilities) => {
+      checkCredentials();
+      if (!capabilities) {
+        console.error('Error: Capabilities required (as JSON string)');
+        process.exit(1);
+      }
+      try {
+        const parsedCapabilities = JSON.parse(capabilities);
+        api.createSession({ capabilities: parsedCapabilities }, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON capabilities');
+        process.exit(1);
+      }
+    }
+  },
+
+  lab: {
+    list: (offset = 0, limit = 10) => {
+      checkCredentials();
+      api.getCodelessTests(parseInt(offset), parseInt(limit), outputResult);
+    },
+    update: (id, data) => {
+      checkCredentials();
+      if (!id || !data) {
+        console.error('Error: Test ID and update data required');
+        process.exit(1);
+      }
+      try {
+        const parsedData = JSON.parse(data);
+        api.updateCodelessTest(parsedData, id, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON data');
+        process.exit(1);
+      }
+    },
+    delete: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Test ID required');
+        process.exit(1);
+      }
+      api.deleteCodelessTest(id, outputResult);
+    }
+  }
+};
+
+// Main execution
+if (!command || command === 'help' || command === '-h' || command === '--help') {
+  console.log(helpText);
+  process.exit(0);
+}
+
+if (command === 'version' || command === '-v' || command === '--version') {
+  console.log(version);
+  process.exit(0);
+}
+
+// Execute command
+if (commands[command]) {
+  if (!subcommand) {
+    console.error(`Error: Subcommand required for '${command}'`);
+    console.error(`Run 'testingbot help' for usage information`);
+    process.exit(1);
+  }
+
+  if (commands[command][subcommand]) {
+    // Get remaining args after command and subcommand
+    const cmdArgs = args.slice(2);
+    commands[command][subcommand](...cmdArgs);
+  } else {
+    console.error(`Error: Unknown subcommand '${subcommand}' for '${command}'`);
+    console.error(`Run 'testingbot help' for usage information`);
+    process.exit(1);
+  }
+} else {
+  console.error(`Error: Unknown command '${command}'`);
+  console.error(`Run 'testingbot help' for usage information`);
+  process.exit(1);
+}

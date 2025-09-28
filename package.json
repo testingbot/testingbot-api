@@ -3,6 +3,9 @@
   "name": "testingbot-api",
   "description": "A wrapper around TestingBot's REST API",
   "version": "1.1.0",
+  "bin": {
+    "testingbot": "./bin/testingbot"
+  },
   "scripts": {
     "lint": "eslint lib/",
     "test:unit": "mocha -t 12000 test/",
