@@ -216,7 +216,7 @@ const commands = {
         console.error('Error: Invalid browser type. Use: all, web, mobile, or real');
         process.exit(1);
       }
-      api.getBrowsers(outputResult, type);
+      api.getBrowsers(type, outputResult);
     }
   },
 
