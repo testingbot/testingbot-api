@@ -280,7 +280,7 @@ const commands = {
     },
     list: (offset = 0, limit = 10) => {
       checkCredentials();
-      api.getScreenshots(parseInt(offset), parseInt(limit), outputResult);
+      api.getScreenshotList(parseInt(offset), parseInt(limit), outputResult);
     }
   },
 

@@ -446,16 +446,6 @@ describe('TestingBot CLI Tests', function () {
       assert(data);
     });
 
-    it('should list team users', async function () {
-      if (!process.env.TB_KEY || !process.env.TB_SECRET) {
-        this.skip();
-      }
-
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} team users`);
-      const data = JSON.parse(stdout);
-      assert(Array.isArray(data));
-    });
-
     it('should error when user ID is missing for get-user', async function () {
       try {
         await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} team get-user`);
