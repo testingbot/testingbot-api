@@ -7,6 +7,16 @@ const { promisify } = require('util');
 const execAsync = promisify(exec);
 const binaryPath = path.join(__dirname, '..', 'bin', 'testingbot');
 
+// Helper function to safely execute CLI commands with environment variables
+const execWithEnv = async (command, env = {}) => {
+  return execAsync(command, {
+    env: {
+      ...process.env,
+      ...env
+    }
+  });
+};
+
 describe('TestingBot CLI Tests', function () {
   this.timeout(5000);
 
@@ -129,7 +139,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} user info`);
+      const { stdout } = await execWithEnv(`${binaryPath} user info`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data.id);
       assert(data.first_name);
@@ -137,7 +150,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when update data is missing', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} user update`);
+        await execWithEnv(`${binaryPath} user update`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Update data required'));
@@ -146,7 +162,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error on invalid JSON for user update', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} user update "invalid json"`);
+        await execWithEnv(`${binaryPath} user update "invalid json"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Invalid JSON'));
@@ -160,7 +179,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tests list`);
+      const { stdout } = await execWithEnv(`${binaryPath} tests list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data.data);
       assert(Array.isArray(data.data));
@@ -171,7 +193,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tests list 0 5`);
+      const { stdout } = await execWithEnv(`${binaryPath} tests list 0 5`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data.data);
       assert(data.meta);
@@ -180,7 +205,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when test ID is missing for get', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tests get`);
+        await execWithEnv(`${binaryPath} tests get`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID required'));
@@ -189,7 +217,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when test ID is missing for delete', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tests delete`);
+        await execWithEnv(`${binaryPath} tests delete`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID required'));
@@ -198,7 +229,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when test ID is missing for stop', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tests stop`);
+        await execWithEnv(`${binaryPath} tests stop`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID required'));
@@ -207,7 +241,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when test ID or data is missing for update', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tests update 123`);
+        await execWithEnv(`${binaryPath} tests update 123`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID and update data required'));
@@ -221,7 +258,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} devices list`);
+      const { stdout } = await execWithEnv(`${binaryPath} devices list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(Array.isArray(data));
     });
@@ -231,14 +271,20 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} devices available`);
+      const { stdout } = await execWithEnv(`${binaryPath} devices available`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(Array.isArray(data));
     });
 
     it('should error when device ID is missing for get', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} devices get`);
+        await execWithEnv(`${binaryPath} devices get`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Device ID required'));
@@ -252,7 +298,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} browsers list`);
+      const { stdout } = await execWithEnv(`${binaryPath} browsers list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(Array.isArray(data));
     });
@@ -262,14 +311,20 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} browsers list web`);
+      const { stdout } = await execWithEnv(`${binaryPath} browsers list web`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(Array.isArray(data));
     });
 
     it('should error on invalid browser type', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} browsers list invalidtype`);
+        await execWithEnv(`${binaryPath} browsers list invalidtype`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Invalid browser type'));
@@ -280,7 +335,10 @@ describe('TestingBot CLI Tests', function () {
   describe('Storage Commands', function () {
     it('should error when file path is missing for upload', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} storage upload`);
+        await execWithEnv(`${binaryPath} storage upload`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('File path required'));
@@ -289,7 +347,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when file does not exist', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} storage upload /nonexistent/file.txt`);
+        await execWithEnv(`${binaryPath} storage upload /nonexistent/file.txt`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('File not found'));
@@ -301,7 +362,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} storage list`);
+      const { stdout } = await execWithEnv(`${binaryPath} storage list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data.meta);
       assert(data.data);
@@ -309,7 +373,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when storage ID is missing for get', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} storage get`);
+        await execWithEnv(`${binaryPath} storage get`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Storage file ID required'));
@@ -318,7 +385,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when storage ID is missing for delete', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} storage delete`);
+        await execWithEnv(`${binaryPath} storage delete`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Storage file ID required'));
@@ -329,7 +399,10 @@ describe('TestingBot CLI Tests', function () {
   describe('Screenshot Commands', function () {
     it('should error when URL is missing for take', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} screenshot take`);
+        await execWithEnv(`${binaryPath} screenshot take`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('URL and config required'));
@@ -338,7 +411,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when config is missing for take', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} screenshot take "https://example.com"`);
+        await execWithEnv(`${binaryPath} screenshot take "https://example.com"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('URL and config required'));
@@ -347,7 +423,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error on invalid JSON config for take', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} screenshot take "https://example.com" "invalid json"`);
+        await execWithEnv(`${binaryPath} screenshot take "https://example.com" "invalid json"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Invalid JSON config'));
@@ -356,7 +435,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when screenshot ID is missing for get', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} screenshot get`);
+        await execWithEnv(`${binaryPath} screenshot get`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Screenshot ID required'));
@@ -368,7 +450,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} screenshot list`);
+      const { stdout } = await execWithEnv(`${binaryPath} screenshot list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data);
     });
@@ -380,7 +465,10 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tunnel info`);
+      const { stdout } = await execWithEnv(`${binaryPath} tunnel info`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data);
     });
@@ -390,14 +478,20 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tunnel list`);
+      const { stdout } = await execWithEnv(`${binaryPath} tunnel list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(Array.isArray(data));
     });
 
     it('should error when tunnel ID is missing for delete', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} tunnel delete`);
+        await execWithEnv(`${binaryPath} tunnel delete`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Tunnel ID required'));
@@ -411,14 +505,20 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} builds list`);
+      const { stdout } = await execWithEnv(`${binaryPath} builds list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data);
     });
 
     it('should error when build ID is missing for get', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} builds get`);
+        await execWithEnv(`${binaryPath} builds get`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Build ID required'));
@@ -427,7 +527,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when build ID is missing for delete', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} builds delete`);
+        await execWithEnv(`${binaryPath} builds delete`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Build ID required'));
@@ -441,14 +544,20 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} team info`);
+      const { stdout } = await execWithEnv(`${binaryPath} team info`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data);
     });
 
     it('should error when user ID is missing for get-user', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} team get-user`);
+        await execWithEnv(`${binaryPath} team get-user`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('User ID required'));
@@ -457,7 +566,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when user data is missing for create-user', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} team create-user`);
+        await execWithEnv(`${binaryPath} team create-user`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('User data required'));
@@ -466,7 +578,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error on invalid JSON for create-user', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} team create-user "invalid json"`);
+        await execWithEnv(`${binaryPath} team create-user "invalid json"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Invalid JSON'));
@@ -477,7 +592,10 @@ describe('TestingBot CLI Tests', function () {
   describe('Session Commands', function () {
     it('should error when capabilities are missing for create', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} session create`);
+        await execWithEnv(`${binaryPath} session create`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Capabilities required'));
@@ -486,7 +604,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error on invalid JSON capabilities', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} session create "invalid json"`);
+        await execWithEnv(`${binaryPath} session create "invalid json"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Invalid JSON capabilities'));
@@ -500,14 +621,20 @@ describe('TestingBot CLI Tests', function () {
         this.skip();
       }
 
-      const { stdout } = await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} lab list`);
+      const { stdout } = await execWithEnv(`${binaryPath} lab list`, {
+        TB_KEY: process.env.TB_KEY,
+        TB_SECRET: process.env.TB_SECRET
+      });
       const data = JSON.parse(stdout);
       assert(data);
     });
 
     it('should error when test ID is missing for update', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} lab update`);
+        await execWithEnv(`${binaryPath} lab update`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID and update data required'));
@@ -516,7 +643,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when update data is missing for update', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} lab update 123`);
+        await execWithEnv(`${binaryPath} lab update 123`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID and update data required'));
@@ -525,7 +655,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error on invalid JSON for update', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} lab update 123 "invalid json"`);
+        await execWithEnv(`${binaryPath} lab update 123 "invalid json"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Invalid JSON'));
@@ -534,7 +667,10 @@ describe('TestingBot CLI Tests', function () {
 
     it('should error when test ID is missing for delete', async function () {
       try {
-        await execAsync(`TB_KEY=${process.env.TB_KEY} TB_SECRET=${process.env.TB_SECRET} ${binaryPath} lab delete`);
+        await execWithEnv(`${binaryPath} lab delete`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
         assert.fail('Should have thrown an error');
       } catch (error) {
         assert(error.stderr.includes('Test ID required'));
