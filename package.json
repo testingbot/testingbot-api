@@ -1,7 +1,8 @@
 {
   "author": "TestingBot <info@testingbot.com> (testingbot.com)",
   "name": "testingbot-api",
-  "description": "A wrapper around TestingBot's REST API",
+  "description": "Official NodeJS client for the TestingBot REST API",
+  "types": "index.d.ts",
   "version": "1.1.0",
   "bin": {
     "testingbot": "./bin/testingbot"
@@ -20,9 +21,15 @@
     "url": "https://github.com/testingbot/testingbot-api/issues"
   },
   "keywords": [
+    "testingbot",
     "testingbot-api",
     "testingbot-nodejs",
-    "nodejs api"
+    "testing",
+    "automation",
+    "selenium",
+    "cross-browser",
+    "api-client",
+    "nodejs"
   ],
   "devDependencies": {
     "eslint": "^9.15.0",
