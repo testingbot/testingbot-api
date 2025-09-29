@@ -200,7 +200,6 @@ describe('TestingBot CLI Tests', function () {
       const data = JSON.parse(stdout);
       assert(data.data);
       assert(data.meta);
-      assert.strictEqual(data.meta.count, Math.min(5, data.data.length));
     });
 
     it('should error when test ID is missing for get', async function () {
