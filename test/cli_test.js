@@ -664,6 +664,42 @@ describe('TestingBot CLI Tests', function () {
       }
     });
 
+    it('should error when test data is missing for create', async function () {
+      try {
+        await execWithEnv(`${binaryPath} lab create`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
+        assert.fail('Should have thrown an error');
+      } catch (error) {
+        assert(error.stderr.includes('Test data required'));
+      }
+    });
+
+    it('should error on invalid JSON for create', async function () {
+      try {
+        await execWithEnv(`${binaryPath} lab create "invalid json"`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
+        assert.fail('Should have thrown an error');
+      } catch (error) {
+        assert(error.stderr.includes('Invalid JSON'));
+      }
+    });
+
+    it('should error when required fields are missing for create', async function () {
+      try {
+        await execWithEnv(`${binaryPath} lab create '{"name": "test"}'`, {
+          TB_KEY: process.env.TB_KEY,
+          TB_SECRET: process.env.TB_SECRET
+        });
+        assert.fail('Should have thrown an error');
+      } catch (error) {
+        assert(error.stderr.includes('Test name and URL are required'));
+      }
+    });
+
     it('should error when test ID is missing for delete', async function () {
       try {
         await execWithEnv(`${binaryPath} lab delete`, {

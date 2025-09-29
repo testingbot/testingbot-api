@@ -106,6 +106,7 @@ Commands:
 
   lab                     Codeless test management
     list [offset] [limit] List codeless tests
+    create <data>         Create codeless test (data as JSON)
     update <id> <data>    Update codeless test
     delete <id>           Delete codeless test
 
@@ -380,6 +381,24 @@ const commands = {
     list: (offset = 0, limit = 10) => {
       checkCredentials();
       api.getCodelessTests(parseInt(offset), parseInt(limit), outputResult);
+    },
+    create: (data) => {
+      checkCredentials();
+      if (!data) {
+        console.error('Error: Test data required (as JSON string)');
+        process.exit(1);
+      }
+      try {
+        const parsedData = JSON.parse(data);
+        if (!parsedData.name || !parsedData.url) {
+          console.error('Error: Test name and URL are required');
+          process.exit(1);
+        }
+        api.createCodelessTest(parsedData, outputResult);
+      } catch (e) {
+        console.error('Error: Invalid JSON data');
+        process.exit(1);
+      }
     },
     update: (id, data) => {
       checkCredentials();

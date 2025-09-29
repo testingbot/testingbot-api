@@ -24,6 +24,12 @@ TestingBot provides a cloud-based test infrastructure for automated cross-browse
   - [Storage Management](#storage-management)
   - [Screenshots](#screenshots)
   - [Team Management](#team-management)
+  - [Codeless Tests](#codeless-tests)
+- [CLI Usage](#cli-usage)
+  - [Installation](#installation-1)
+  - [Authentication](#authentication)
+  - [Available Commands](#available-commands)
+  - [CLI Examples](#cli-examples)
 - [Complete Examples](#complete-examples)
 - [Testing](#testing)
 - [Contributing](#contributing)
@@ -517,6 +523,148 @@ tb.resetCredentials(userId, function(error, result) {});
 
 // Async/await style
 const result = await tb.resetCredentials(userId);
+```
+
+### Codeless Tests
+
+Codeless tests allow you to create automated tests without writing code. These tests can be configured to run on a schedule and include AI-powered test generation.
+
+#### getCodelessTests
+Retrieves a list of codeless tests
+
+```javascript
+// Callback style
+tb.getCodelessTests(offset, limit, function(error, tests) {});
+
+// Async/await style
+const tests = await tb.getCodelessTests(0, 10); // offset: 0, limit: 10
+```
+
+#### createCodelessTest
+Creates a new codeless test
+
+```javascript
+const testData = {
+  name: 'My Codeless Test',           // Required: Test name
+  url: 'https://example.com',         // Required: URL to test
+  cron: '0 0 * * *',                  // Optional: Cron schedule
+  screenshot: true,                    // Optional: Take screenshots
+  video: false,                        // Optional: Record video
+  idletimeout: 60,                    // Optional: Idle timeout in seconds
+  screenresolution: '1920x1080',      // Optional: Screen resolution
+  ai_prompt: 'Test the login flow'    // Optional: AI test agent prompt
+};
+
+// Callback style
+tb.createCodelessTest(testData, function(error, result) {});
+
+// Async/await style
+const result = await tb.createCodelessTest(testData);
+```
+
+#### updateCodelessTest
+Updates an existing codeless test
+
+```javascript
+const updateData = {
+  test: {
+    name: 'Updated Test Name',
+    cron: '0 12 * * *'
+  }
+};
+
+// Callback style
+tb.updateCodelessTest(updateData, testId, function(error, result) {});
+
+// Async/await style
+const result = await tb.updateCodelessTest(updateData, testId);
+```
+
+#### deleteCodelessTest
+Deletes a codeless test
+
+```javascript
+// Callback style
+tb.deleteCodelessTest(testId, function(error, result) {});
+
+// Async/await style
+const result = await tb.deleteCodelessTest(testId);
+```
+
+## CLI Usage
+
+The TestingBot API package includes a command-line interface for quick access to API functionality.
+
+### Installation
+
+```bash
+# Install globally for CLI access
+npm install -g testingbot-api
+
+# Or use npx with local installation
+npx testingbot <command>
+```
+
+### Authentication
+
+The CLI uses the same authentication methods as the API client:
+- Environment variables: `TB_KEY` and `TB_SECRET` or `TESTINGBOT_KEY` and `TESTINGBOT_SECRET`
+- Configuration file: `~/.testingbot` with `api_key` and `api_secret`
+
+### Available Commands
+
+```bash
+# User management
+testingbot user info                    # Get user information
+testingbot user update <json>           # Update user information
+
+# Test management
+testingbot tests list [offset] [limit]  # List tests
+testingbot tests get <id>               # Get test details
+testingbot tests delete <id>            # Delete a test
+testingbot tests stop <id>              # Stop a running test
+
+# Codeless tests (Lab)
+testingbot lab list [offset] [limit]    # List codeless tests
+testingbot lab create <json>            # Create a codeless test
+testingbot lab update <id> <json>       # Update a codeless test
+testingbot lab delete <id>              # Delete a codeless test
+
+# Browsers and devices
+testingbot browsers list [type]         # List browsers (type: all|web|mobile|real)
+testingbot devices list                 # List all devices
+testingbot devices available            # List available devices
+
+# Storage
+testingbot storage upload <file>        # Upload a file
+testingbot storage list [offset] [limit] # List stored files
+testingbot storage delete <id>          # Delete a stored file
+
+# Help
+testingbot --help                       # Show help
+testingbot --version                    # Show version
+```
+
+### CLI Examples
+
+```bash
+# Create a codeless test
+testingbot lab create '{
+  "name": "Homepage Test",
+  "url": "https://example.com",
+  "cron": "0 0 * * *",
+  "screenshot": true,
+  "ai_prompt": "Test the homepage loads correctly"
+}'
+
+# List recent tests
+testingbot tests list 0 20
+
+# Get browser list
+testingbot browsers list web
+
+# Upload a file to storage
+testingbot storage upload ./test-app.zip
 ```
 
 ## Complete Examples
