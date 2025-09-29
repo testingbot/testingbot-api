@@ -4,19 +4,83 @@
 
 # testingbot-api
 
-Wrapper around the TestingBot REST API for [Node.js](https://nodejs.org/).
+Official NodeJS client for the [TestingBot](https://testingbot.com) REST API.
 
-## Install
+TestingBot provides a cloud-based test infrastructure for automated cross-browser testing. This client library allows you to interact with the TestingBot API to manage tests, retrieve browser information, handle test artifacts, and more.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [API Reference](#api-reference)
+  - [Browser & Device Management](#browser--device-management)
+  - [Session Management](#session-management)
+  - [User Management](#user-management)
+  - [Test Management](#test-management)
+  - [Tunnel Management](#tunnel-management)
+  - [Build Management](#build-management)
+  - [Storage Management](#storage-management)
+  - [Screenshots](#screenshots)
+  - [Team Management](#team-management)
+- [Complete Examples](#complete-examples)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
+- [More Documentation](#more-documentation)
+
+## Features
+
+### Core Features
+- Full support for all TestingBot REST API endpoints
+- Both callback and async/await patterns supported
+- Manage browser sessions and tests
+- Upload and manage test artifacts
+- Team management capabilities
+- Screenshot generation across multiple browsers
+- Tunnel management for local testing
+
+## Requirements
+
+- NodeJS >= 10.0.0
+- A TestingBot account with API credentials
+
+## Installation
 
 ```shell
 npm install testingbot-api
 ```
 
-## Credentials
-You can use environment variables `TESTINGBOT_KEY` and `TESTINGBOT_SECRET` to pass your TestingBot key and secret to the API client.
-The key and secret can be obtained from [TestingBot](https://testingbot.com/members/user/edit)
+## Quick Start
 
-## Using the wrapper
+### 1. Get your credentials
+
+Sign up for a [TestingBot account](https://testingbot.com) and obtain your API key and secret from the [account settings](https://testingbot.com/members/user/edit).
+
+### 2. Set up authentication
+
+You can authenticate in three ways:
+
+#### Environment variables (recommended)
+```bash
+export TESTINGBOT_KEY="your-api-key"
+export TESTINGBOT_SECRET="your-api-secret"
+```
+
+#### Constructor options
+```javascript
+const tb = new TestingBot({
+  api_key: 'your-api-key',
+  api_secret: 'your-api-secret'
+});
+```
+
+#### Configuration file
+Create a `~/.testingbot` file with your credentials
+
+### 3. Initialize the client
 
 ```javascript
 const TestingBot = require('testingbot-api');
@@ -27,9 +91,15 @@ const tb = new TestingBot({
 });
 ```
 
-All methods support both callback style and async/await patterns. When using async/await, omit the callback parameter.
+## Usage
 
-### getBrowsers
+All methods support both **callback style** and **async/await patterns**. When using async/await, simply omit the callback parameter.
+
+## API Reference
+
+### Browser & Device Management
+
+#### getBrowsers
 Gets a list of browsers you can test on
 
 ```javascript
@@ -43,7 +113,7 @@ const browsers = await tb.getBrowsers();
 const webBrowsers = await tb.getBrowsers('web');
 ```
 
-### getDevices
+#### getDevices
 Gets a list of physical mobile devices you can test on
 
 ```javascript
@@ -54,7 +124,7 @@ tb.getDevices(function(error, devices) {});
 const devices = await tb.getDevices();
 ```
 
-### getAvailableDevices
+#### getAvailableDevices
 Gets a list of available physical mobile devices for your account
 
 ```javascript
@@ -65,7 +135,7 @@ tb.getAvailableDevices(function(error, availableDevices) {});
 const availableDevices = await tb.getAvailableDevices();
 ```
 
-### getDevice
+#### getDevice
 Gets details for a specific physical device
 
 ```javascript
@@ -76,7 +146,9 @@ tb.getDevice(deviceId, function(error, deviceDetails) {});
 const deviceDetails = await tb.getDevice(deviceId);
 ```
 
-### createSession
+### Session Management
+
+#### createSession
 Creates a remote browser on TestingBot and returns its CDP URL, which can be used to interface with the remote browser.
 
 ```javascript
@@ -105,7 +177,9 @@ This will return a response with this structure:
 
 You can now connect to the `cdp_url` with a CDP client to instruct the remote browser.
 
-### getUserInfo
+### User Management
+
+#### getUserInfo
 Gets your user information
 
 ```javascript
@@ -116,7 +190,7 @@ tb.getUserInfo(function(error, userInfo) {});
 const userInfo = await tb.getUserInfo();
 ```
 
-### updateUserInfo
+#### updateUserInfo
 Updates your user information
 
 ```javascript
@@ -127,7 +201,9 @@ tb.updateUserInfo(newUserdata, function(error, userInfo) {});
 const userInfo = await tb.updateUserInfo(newUserdata);
 ```
 
-### getTests
+### Test Management
+
+#### getTests
 Gets list of your latest tests
 
 ```javascript
@@ -141,7 +217,7 @@ const tests = await tb.getTests();
 const tests = await tb.getTests(10, 20); // offset: 10, limit: 20
 ```
 
-### getTestDetails
+#### getTestDetails
 Gets details for a single test, pass the WebDriver's SessionID
 
 ```javascript
@@ -152,7 +228,7 @@ tb.getTestDetails(sessionId, function(error, testDetails) {});
 const testDetails = await tb.getTestDetails(sessionId);
 ```
 
-### updateTest
+#### updateTest
 Updates a single test. For example, update the `passed` state of a test (whether it was successful or not).
 
 ```javascript
@@ -165,7 +241,7 @@ tb.updateTest(testData, sessionId, function(error, testDetails) {});
 const testDetails = await tb.updateTest(testData, sessionId);
 ```
 
-### deleteTest
+#### deleteTest
 Deletes a single test, pass the WebDriver's SessionID
 
 ```javascript
@@ -176,7 +252,7 @@ tb.deleteTest(sessionId, function(error, success) {});
 const success = await tb.deleteTest(sessionId);
 ```
 
-### stopTest
+#### stopTest
 Stops a single test, pass the WebDriver's SessionID
 
 ```javascript
@@ -187,7 +263,9 @@ tb.stopTest(sessionId, function(error, success) {});
 const success = await tb.stopTest(sessionId);
 ```
 
-### getTunnelList
+### Tunnel Management
+
+#### getTunnelList
 Gets list of active tunnels
 
 ```javascript
@@ -198,7 +276,7 @@ tb.getTunnelList(function(error, tunnelList) {});
 const tunnelList = await tb.getTunnelList();
 ```
 
-### deleteTunnel
+#### deleteTunnel
 Deletes a single Tunnel
 
 ```javascript
@@ -209,7 +287,9 @@ tb.deleteTunnel(tunnelId, function(error, success) {});
 const success = await tb.deleteTunnel(tunnelId);
 ```
 
-### getBuilds
+### Build Management
+
+#### getBuilds
 Retrieves the latest builds
 
 ```javascript
@@ -223,7 +303,7 @@ const builds = await tb.getBuilds();
 const builds = await tb.getBuilds(10, 20); // offset: 10, limit: 20
 ```
 
-### getTestsForBuild
+#### getTestsForBuild
 Retrieves the tests for a single build
 
 ```javascript
@@ -234,7 +314,7 @@ tb.getTestsForBuild(buildId, function(error, tests) {});
 const tests = await tb.getTestsForBuild(buildId);
 ```
 
-### deleteBuild
+#### deleteBuild
 Deletes a single build
 
 ```javascript
@@ -245,7 +325,9 @@ tb.deleteBuild(buildId, function(error, success) {});
 const success = await tb.deleteBuild(buildId);
 ```
 
-### uploadFile
+### Storage Management
+
+#### uploadFile
 Uploads a local file to TestingBot Storage
 
 ```javascript
@@ -256,7 +338,7 @@ tb.uploadFile(localFilePath, function(error, appUrl) {});
 const appUrl = await tb.uploadFile(localFilePath);
 ```
 
-### uploadRemoteFile
+#### uploadRemoteFile
 Uploads a remote file to TestingBot Storage
 
 ```javascript
@@ -267,7 +349,7 @@ tb.uploadRemoteFile(remoteFileUrl, function(error, appUrl) {});
 const appUrl = await tb.uploadRemoteFile(remoteFileUrl);
 ```
 
-### getStorageFile
+#### getStorageFile
 Retrieve data from a previously uploaded file
 
 ```javascript
@@ -278,7 +360,7 @@ tb.getStorageFile(appUrl, function(error, fileDetails) {});
 const fileDetails = await tb.getStorageFile(appUrl);
 ```
 
-### getStorageFiles
+#### getStorageFiles
 Retrieve list of previously uploaded files
 
 ```javascript
@@ -292,7 +374,7 @@ const fileDetails = await tb.getStorageFiles();
 const fileDetails = await tb.getStorageFiles(10, 20); // offset: 10, limit: 20
 ```
 
-### deleteStorageFile
+#### deleteStorageFile
 Delete a previously uploaded file
 
 ```javascript
@@ -303,7 +385,7 @@ tb.deleteStorageFile(appUrl, function(error, success) {});
 const success = await tb.deleteStorageFile(appUrl);
 ```
 
-### getAuthenticationHashForSharing
+#### getAuthenticationHashForSharing
 Calculates the authentication hash for sharing, pass the WebDriver's SessionID.
 This is used to [share a test's detail page on TestingBot](https://testingbot.com/support/other/sharing)
 
@@ -312,7 +394,9 @@ This is used to [share a test's detail page on TestingBot](https://testingbot.co
 const hash = tb.getAuthenticationHashForSharing(sessionId);
 ```
 
-### takeScreenshot
+### Screenshots
+
+#### takeScreenshot
 Takes screenshots for the specific browsers
 
 ```javascript
@@ -331,7 +415,7 @@ const screenshots = await tb.takeScreenshot(
 ```
 Once a screenshot job is running, you can use `retrieveScreenshots` to poll for the results.
 
-### retrieveScreenshots
+#### retrieveScreenshots
 Retrieves screenshots for a specific `takeScreenshot` call
 
 ```javascript
@@ -342,7 +426,7 @@ tb.retrieveScreenshots(screenshotId, function(error, screenshots) {});
 const screenshots = await tb.retrieveScreenshots(screenshotId);
 ```
 
-### getScreenshotList
+#### getScreenshotList
 Retrieves all screenshots previously generated with your account
 
 ```javascript
@@ -356,7 +440,9 @@ const screenshots = await tb.getScreenshotList();
 const screenshots = await tb.getScreenshotList(10, 20); // offset: 10, limit: 20
 ```
 
-### getTeam
+### Team Management
+
+#### getTeam
 Retrieves team settings
 
 ```javascript
@@ -367,7 +453,7 @@ tb.getTeam(function(error, data) {});
 const teamInfo = await tb.getTeam();
 ```
 
-### getUsersInTeam
+#### getUsersInTeam
 Get all users in your team
 
 ```javascript
@@ -378,7 +464,7 @@ tb.getUsersInTeam(function(error, users) {});
 const users = await tb.getUsersInTeam();
 ```
 
-### getUserFromTeam
+#### getUserFromTeam
 Retrieves information about a specific user in your team
 
 ```javascript
@@ -389,7 +475,7 @@ tb.getUserFromTeam(userId, function(error, user) {});
 const user = await tb.getUserFromTeam(userId);
 ```
 
-### createUserInTeam
+#### createUserInTeam
 Add a user to your team. You need ADMIN rights for this.
 
 ```javascript
@@ -406,7 +492,7 @@ tb.createUserInTeam(userData, function(error, result) {});
 const result = await tb.createUserInTeam(userData);
 ```
 
-### updateUserInTeam
+#### updateUserInTeam
 Update a user in your team. You need ADMIN rights for this.
 
 ```javascript
@@ -422,7 +508,7 @@ tb.updateUserInTeam(userId, userData, function(error, result) {});
 const result = await tb.updateUserInTeam(userId, userData);
 ```
 
-### resetCredentials
+#### resetCredentials
 Resets credentials for a specific user in your team. You need ADMIN rights for this.
 
 ```javascript
@@ -433,7 +519,9 @@ tb.resetCredentials(userId, function(error, result) {});
 const result = await tb.resetCredentials(userId);
 ```
 
-## Complete Example with Async/Await
+## Complete Examples
+
+### Basic Usage
 
 ```javascript
 const TestingBot = require('testingbot-api');
@@ -483,33 +571,29 @@ async function runTests() {
 runTests();
 ```
 
-## Error Handling
 
-When using async/await, wrap your calls in try-catch blocks to handle errors:
+## Testing
 
-```javascript
-try {
-  const userInfo = await tb.getUserInfo();
-} catch (error) {
-  console.error('Failed to get user info:', error.message);
-}
+Run the test suite:
+
+```bash
+npm test
 ```
 
-For callback style, errors are passed as the first argument:
+**Note:** Tests require valid TestingBot credentials set as environment variables (`TB_KEY` and `TB_SECRET`).
 
-```javascript
-tb.getUserInfo((error, userInfo) => {
-  if (error) {
-    console.error('Failed to get user info:', error.message);
-    return;
-  }
-  console.log('User info:', userInfo);
-});
-```
+## Contributing
 
-## Tests
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-``npm test``
+## License
+
+See the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- Documentation: [TestingBot REST API](https://testingbot.com/support/api)
+- Issues: [GitHub Issues](https://github.com/testingbot/testingbot-api/issues)
 
 ## More documentation
 
