@@ -293,6 +293,9 @@ tb.updateTest(testData, sessionId, function(error, testDetails) {});
 
 // Async/await style
 const testDetails = await tb.updateTest(testData, sessionId);
+
+// Array values (e.g. multiple groups) are encoded correctly and all preserved
+await tb.updateTest({ groups: ['regression', 'smoke'] }, sessionId);
 ```
 
 #### deleteTest

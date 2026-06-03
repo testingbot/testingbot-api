@@ -162,4 +162,34 @@ describe('Request shaping', function () {
       });
     });
   });
+
+  // Issue #24: arrays must serialize as repeated []-suffixed keys, otherwise
+  // the server (Rack) collapses repeated bracket-less keys to the last value.
+  describe('Form encoding (issue #24)', function () {
+    it('encodes array values as repeated []-suffixed keys', function () {
+      const r = capture(api => api.updateTest({ groups: ['a', 'b'] }, 'T1'));
+      assert.strictEqual(r.data, 'groups%5B%5D=a&groups%5B%5D=b');
+      assert.deepStrictEqual({ ...querystring.parse(r.data) }, { 'groups[]': ['a', 'b'] });
+    });
+
+    it('keeps a single-element array as one []-suffixed key', function () {
+      const r = capture(api => api.updateTest({ groups: ['solo'] }, 'T1'));
+      assert.strictEqual(r.data, 'groups%5B%5D=solo');
+    });
+
+    it('still flattens nested objects (no regression)', function () {
+      const r = capture(api => api.updateTest({ test: { success: 1, status_message: 'msg' } }, 'T1'));
+      assert.deepStrictEqual({ ...querystring.parse(r.data) }, { 'test[success]': '1', 'test[status_message]': 'msg' });
+    });
+
+    it('still passes pre-bracketed scalar keys through (no regression)', function () {
+      const r = capture(api => api.updateTest({ 'test[success]': '1' }, 'T1'));
+      assert.deepStrictEqual({ ...querystring.parse(r.data) }, { 'test[success]': '1' });
+    });
+
+    it('handles arrays nested inside objects', function () {
+      const r = capture(api => api.updateTest({ test: { groups: ['a', 'b'] } }, 'T1'));
+      assert.deepStrictEqual({ ...querystring.parse(r.data) }, { 'test[groups][]': ['a', 'b'] });
+    });
+  });
 });
