@@ -103,4 +103,63 @@ describe('Request shaping', function () {
       assert.match(r.url, /\/v1\/user\/keys$/);
     });
   });
+
+  describe('Tier-1b options', function () {
+    it('getTests forwards filters via the options form', function () {
+      const r = capture(api => api.getTests({ offset: 2, limit: 50, since: 123, group: 'g', build: 'b', browser_id: 9, skip_fields: 'logs' }));
+      assert.deepStrictEqual(r.params, { offset: 2, count: 50, since: 123, group: 'g', build: 'b', browser_id: 9, skip_fields: 'logs' });
+    });
+
+    it('getTests stays positional for (offset, limit)', function () {
+      const r = capture(api => api.getTests(0, 5));
+      assert.deepStrictEqual(r.params, { offset: 0, count: 5 });
+    });
+
+    it('getTestDetails forwards skip_fields', function () {
+      const r = capture(api => api.getTestDetails('t1', { skip_fields: 'logs,thumbs' }));
+      assert.strictEqual(r.url, 'https://api.testingbot.com/v1/tests/t1');
+      assert.deepStrictEqual(r.params, { skip_fields: 'logs,thumbs' });
+    });
+
+    it('retrieveScreenshots forwards excludeIds', function () {
+      const r = capture(api => api.retrieveScreenshots('s1', { excludeIds: '1,2' }));
+      assert.deepStrictEqual(r.params, { excludeIds: '1,2' });
+    });
+
+    it('getDevices forwards platform', function () {
+      const r = capture(api => api.getDevices({ platform: 'Android' }));
+      assert.deepStrictEqual(r.params, { platform: 'Android' });
+    });
+
+    it('getDevices(callback) stays back-compatible', function () {
+      const r = capture(api => api.getDevices(() => {}));
+      assert.strictEqual(r.url, 'https://api.testingbot.com/v1/devices');
+    });
+  });
+
+  describe('Codeless lifecycle', function () {
+    const cases = [
+      ['getCodelessTest', api => api.getCodelessTest(5), 'GET', '/v1/lab/5'],
+      ['triggerCodelessTest', api => api.triggerCodelessTest(5), 'POST', '/v1/lab/5/trigger'],
+      ['triggerAllCodelessTests', api => api.triggerAllCodelessTests(), 'POST', '/v1/lab/trigger_all'],
+      ['stopCodelessTest', api => api.stopCodelessTest(5), 'PUT', '/v1/lab/5/stop'],
+      ['getCodelessSteps', api => api.getCodelessSteps(5), 'GET', '/v1/lab/5/steps'],
+      ['addCodelessStep', api => api.addCodelessStep(5, { type: 'click' }), 'POST', '/v1/lab/5/steps'],
+      ['getCodelessBrowsers', api => api.getCodelessBrowsers(5), 'GET', '/v1/lab/5/browsers'],
+      ['setCodelessBrowsers', api => api.setCodelessBrowsers(5, { browsers: [] }), 'POST', '/v1/lab/5/browsers'],
+      ['scheduleCodelessTest', api => api.scheduleCodelessTest(5, { type: 'daily' }), 'POST', '/v1/lab/5/schedule'],
+      ['createCodelessAlert', api => api.createCodelessAlert(5, { email: 'a' }), 'POST', '/v1/lab/5/alert'],
+      ['updateCodelessAlert', api => api.updateCodelessAlert(5, { email: 'a' }), 'PUT', '/v1/lab/5/alert'],
+      ['createCodelessReport', api => api.createCodelessReport(5, { name: 'r' }), 'POST', '/v1/lab/5/report'],
+      ['updateCodelessReport', api => api.updateCodelessReport(5, { name: 'r' }), 'PUT', '/v1/lab/5/report']
+    ];
+
+    cases.forEach(([name, invoke, method, path]) => {
+      it(`${name} -> ${method} ${path}`, function () {
+        const r = capture(invoke);
+        assert.strictEqual(r.method, method);
+        assert.match(r.url, new RegExp(path.replace(/\//g, '\\/') + '$'));
+      });
+    });
+  });
 });

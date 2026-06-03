@@ -48,6 +48,20 @@ declare module 'testingbot-api' {
     meta: Meta;
   }
 
+  export interface TestListOptions {
+    offset?: number;
+    count?: number;
+    /** Alias for count. */
+    limit?: number;
+    /** UNIX timestamp; only tests updated at/after this time. */
+    since?: number;
+    group?: string;
+    build?: string;
+    browser_id?: number;
+    /** Comma-separated fields to omit (logs, thumbs). */
+    skip_fields?: string;
+  }
+
   export interface Test {
     /** Test session identifier. */
     id: string | number;
@@ -152,7 +166,9 @@ declare module 'testingbot-api' {
     getBrowsers(type: 'webdriver' | 'rc', callback: Callback<Browser[]>): void;
 
     getDevices(): Promise<Device[]>;
+    getDevices(options: { platform?: string }): Promise<Device[]>;
     getDevices(callback: Callback<Device[]>): void;
+    getDevices(options: { platform?: string }, callback: Callback<Device[]>): void;
 
     getAvailableDevices(): Promise<Device[]>;
     getAvailableDevices(callback: Callback<Device[]>): void;
@@ -181,11 +197,15 @@ declare module 'testingbot-api' {
     // Test Management
     getTests(): Promise<Paginated<Test>>;
     getTests(offset: number, limit: number): Promise<Paginated<Test>>;
+    getTests(options: TestListOptions): Promise<Paginated<Test>>;
     getTests(callback: Callback<Paginated<Test>>): void;
     getTests(offset: number, limit: number, callback: Callback<Paginated<Test>>): void;
+    getTests(options: TestListOptions, callback: Callback<Paginated<Test>>): void;
 
     getTestDetails(sessionId: string): Promise<Test>;
+    getTestDetails(sessionId: string, options: { skip_fields?: string }): Promise<Test>;
     getTestDetails(sessionId: string, callback: Callback<Test>): void;
+    getTestDetails(sessionId: string, options: { skip_fields?: string }, callback: Callback<Test>): void;
 
     updateTest(testData: TestUpdate, sessionId: string): Promise<Test>;
     updateTest(testData: TestUpdate, sessionId: string, callback: Callback<Test>): void;
@@ -259,12 +279,68 @@ declare module 'testingbot-api' {
     ): void;
 
     retrieveScreenshots(screenshotId: string): Promise<Screenshot>;
+    retrieveScreenshots(screenshotId: string, options: { excludeIds?: string }): Promise<Screenshot>;
     retrieveScreenshots(screenshotId: string, callback: Callback<Screenshot>): void;
+    retrieveScreenshots(screenshotId: string, options: { excludeIds?: string }, callback: Callback<Screenshot>): void;
 
     getScreenshotList(): Promise<Paginated<Screenshot>>;
     getScreenshotList(offset: number, limit: number): Promise<Paginated<Screenshot>>;
     getScreenshotList(callback: Callback<Paginated<Screenshot>>): void;
     getScreenshotList(offset: number, limit: number, callback: Callback<Paginated<Screenshot>>): void;
+
+    // Codeless tests (lab)
+    getCodelessTests(): Promise<Paginated<any>>;
+    getCodelessTests(offset: number, limit: number): Promise<Paginated<any>>;
+    getCodelessTests(callback: Callback<Paginated<any>>): void;
+    getCodelessTests(offset: number, limit: number, callback: Callback<Paginated<any>>): void;
+
+    getCodelessTest(testID: string | number): Promise<any>;
+    getCodelessTest(testID: string | number, callback: Callback<any>): void;
+
+    createCodelessTest(testData: Record<string, any>): Promise<any>;
+    createCodelessTest(testData: Record<string, any>, callback: Callback<any>): void;
+
+    updateCodelessTest(data: Record<string, any>, testID: string | number): Promise<any>;
+    updateCodelessTest(data: Record<string, any>, testID: string | number, callback: Callback<any>): void;
+
+    deleteCodelessTest(testID: string | number): Promise<boolean>;
+    deleteCodelessTest(testID: string | number, callback: Callback<boolean>): void;
+
+    triggerCodelessTest(testID: string | number): Promise<any>;
+    triggerCodelessTest(testID: string | number, callback: Callback<any>): void;
+
+    triggerAllCodelessTests(): Promise<any>;
+    triggerAllCodelessTests(callback: Callback<any>): void;
+
+    stopCodelessTest(testID: string | number): Promise<any>;
+    stopCodelessTest(testID: string | number, callback: Callback<any>): void;
+
+    scheduleCodelessTest(testID: string | number, data: Record<string, any>): Promise<any>;
+    scheduleCodelessTest(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
+
+    getCodelessSteps(testID: string | number): Promise<any>;
+    getCodelessSteps(testID: string | number, callback: Callback<any>): void;
+
+    addCodelessStep(testID: string | number, data: Record<string, any>): Promise<any>;
+    addCodelessStep(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
+
+    getCodelessBrowsers(testID: string | number): Promise<any>;
+    getCodelessBrowsers(testID: string | number, callback: Callback<any>): void;
+
+    setCodelessBrowsers(testID: string | number, data: Record<string, any>): Promise<any>;
+    setCodelessBrowsers(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
+
+    createCodelessAlert(testID: string | number, data: Record<string, any>): Promise<any>;
+    createCodelessAlert(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
+
+    updateCodelessAlert(testID: string | number, data: Record<string, any>): Promise<any>;
+    updateCodelessAlert(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
+
+    createCodelessReport(testID: string | number, data: Record<string, any>): Promise<any>;
+    createCodelessReport(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
+
+    updateCodelessReport(testID: string | number, data: Record<string, any>): Promise<any>;
+    updateCodelessReport(testID: string | number, data: Record<string, any>, callback: Callback<any>): void;
 
     // Team Management
     getTeam(): Promise<any>;

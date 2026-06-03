@@ -44,6 +44,22 @@ function outputResult(err, data, options = {}) {
   }
 }
 
+function requireArg(value, name) {
+  if (!value) {
+    console.error(`Error: ${name} required`);
+    process.exit(1);
+  }
+}
+
+function parseJson(data, label = 'data') {
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    console.error('Error: Invalid JSON ' + label);
+    process.exit(1);
+  }
+}
+
 // Help text
 const helpText = `
 TestingBot API CLI v${version}
@@ -70,7 +86,7 @@ Commands:
     stop <id>             Stop a running test
 
   devices                 Device management
-    list                  List all available devices
+    list [platform]       List devices (platform: Android|iOS|REAL_ANDROID|REAL_IOS)
     available             List currently available devices
     get <id>              Get specific device details
 
@@ -112,9 +128,22 @@ Commands:
 
   lab                     Codeless test management
     list [offset] [limit] List codeless tests
+    get <id>              Get a codeless test
     create <data>         Create codeless test (data as JSON)
     update <id> <data>    Update codeless test
     delete <id>           Delete codeless test
+    trigger <id>          Trigger a codeless test run
+    trigger-all           Trigger all codeless tests
+    stop <id>             Stop a running codeless test
+    schedule <id> <data>  Set a schedule (data as JSON)
+    steps <id>            List a codeless test's steps
+    add-step <id> <data>  Add a step (data as JSON)
+    browsers <id>         List a codeless test's browsers
+    set-browsers <id> <data>  Set browsers (data as JSON)
+    alert <id> <data>     Create an alert (data as JSON)
+    update-alert <id> <data>  Update an alert (data as JSON)
+    report <id> <data>    Create a report (data as JSON)
+    update-report <id> <data> Update a report (data as JSON)
 
   help, -h, --help        Show this help message
   version, -v, --version  Show version
@@ -202,9 +231,13 @@ const commands = {
   },
 
   devices: {
-    list: () => {
+    list: (platform) => {
       checkCredentials();
-      api.getDevices(outputResult);
+      if (platform) {
+        api.getDevices({ platform }, outputResult);
+      } else {
+        api.getDevices(outputResult);
+      }
     },
     available: () => {
       checkCredentials();
@@ -474,6 +507,77 @@ const commands = {
         process.exit(1);
       }
       api.deleteCodelessTest(id, outputResult);
+    },
+    get: (id) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      api.getCodelessTest(id, outputResult);
+    },
+    trigger: (id) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      api.triggerCodelessTest(id, outputResult);
+    },
+    'trigger-all': () => {
+      checkCredentials();
+      api.triggerAllCodelessTests(outputResult);
+    },
+    stop: (id) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      api.stopCodelessTest(id, outputResult);
+    },
+    steps: (id) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      api.getCodelessSteps(id, outputResult);
+    },
+    'add-step': (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Step data (JSON)');
+      api.addCodelessStep(id, parseJson(data), outputResult);
+    },
+    browsers: (id) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      api.getCodelessBrowsers(id, outputResult);
+    },
+    'set-browsers': (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Browser data (JSON)');
+      api.setCodelessBrowsers(id, parseJson(data), outputResult);
+    },
+    schedule: (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Schedule data (JSON)');
+      api.scheduleCodelessTest(id, parseJson(data), outputResult);
+    },
+    alert: (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Alert data (JSON)');
+      api.createCodelessAlert(id, parseJson(data), outputResult);
+    },
+    'update-alert': (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Alert data (JSON)');
+      api.updateCodelessAlert(id, parseJson(data), outputResult);
+    },
+    report: (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Report data (JSON)');
+      api.createCodelessReport(id, parseJson(data), outputResult);
+    },
+    'update-report': (id, data) => {
+      checkCredentials();
+      requireArg(id, 'Test ID');
+      requireArg(data, 'Report data (JSON)');
+      api.updateCodelessReport(id, parseJson(data), outputResult);
     }
   }
 };
