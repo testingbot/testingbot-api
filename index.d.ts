@@ -36,12 +36,32 @@ declare module 'testingbot-api' {
     cdp_url: string;
   }
 
+  export interface Meta {
+    offset: number;
+    count: number;
+    total: number;
+  }
+
+  /** List endpoints return a { data, meta } envelope, not a bare array. */
+  export interface Paginated<T> {
+    data: T[];
+    meta: Meta;
+  }
+
   export interface Test {
-    session_id: string;
-    status: string;
+    /** Test session identifier. */
+    id: string | number;
+    session_id?: string;
+    /** Lifecycle state, e.g. RUNNING, COMPLETE, TIMEOUT. */
+    state: string;
+    success?: boolean;
+    status_id?: number;
+    status_message?: string;
     browser: string;
     version: string;
-    platform: string;
+    /** Desktop OS. Mobile tests expose platform_name instead. */
+    os?: string;
+    platform_name?: string;
     duration: number;
     created_at: string;
     [key: string]: any;
@@ -71,9 +91,10 @@ declare module 'testingbot-api' {
   }
 
   export interface UserUpdate {
-    'user[first_name]'?: string;
-    'user[last_name]'?: string;
-    'user[email]'?: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    password?: string;
     [key: string]: any;
   }
 
@@ -151,10 +172,10 @@ declare module 'testingbot-api' {
     updateUserInfo(userData: UserUpdate, callback: Callback<UserInfo>): void;
 
     // Test Management
-    getTests(): Promise<Test[]>;
-    getTests(offset: number, limit: number): Promise<Test[]>;
-    getTests(callback: Callback<Test[]>): void;
-    getTests(offset: number, limit: number, callback: Callback<Test[]>): void;
+    getTests(): Promise<Paginated<Test>>;
+    getTests(offset: number, limit: number): Promise<Paginated<Test>>;
+    getTests(callback: Callback<Paginated<Test>>): void;
+    getTests(offset: number, limit: number, callback: Callback<Paginated<Test>>): void;
 
     getTestDetails(sessionId: string): Promise<Test>;
     getTestDetails(sessionId: string, callback: Callback<Test>): void;
@@ -176,13 +197,13 @@ declare module 'testingbot-api' {
     deleteTunnel(tunnelId: string, callback: Callback<boolean>): void;
 
     // Build Management
-    getBuilds(): Promise<Build[]>;
-    getBuilds(offset: number, limit: number): Promise<Build[]>;
-    getBuilds(callback: Callback<Build[]>): void;
-    getBuilds(offset: number, limit: number, callback: Callback<Build[]>): void;
+    getBuilds(): Promise<Paginated<Build>>;
+    getBuilds(offset: number, limit: number): Promise<Paginated<Build>>;
+    getBuilds(callback: Callback<Paginated<Build>>): void;
+    getBuilds(offset: number, limit: number, callback: Callback<Paginated<Build>>): void;
 
-    getTestsForBuild(buildId: string | number): Promise<Test[]>;
-    getTestsForBuild(buildId: string | number, callback: Callback<Test[]>): void;
+    getTestsForBuild(buildId: string | number): Promise<Paginated<Test>>;
+    getTestsForBuild(buildId: string | number, callback: Callback<Paginated<Test>>): void;
 
     deleteBuild(buildId: string | number): Promise<boolean>;
     deleteBuild(buildId: string | number, callback: Callback<boolean>): void;
@@ -197,10 +218,10 @@ declare module 'testingbot-api' {
     getStorageFile(appUrl: string): Promise<any>;
     getStorageFile(appUrl: string, callback: Callback<any>): void;
 
-    getStorageFiles(): Promise<any[]>;
-    getStorageFiles(offset: number, limit: number): Promise<any[]>;
-    getStorageFiles(callback: Callback<any[]>): void;
-    getStorageFiles(offset: number, limit: number, callback: Callback<any[]>): void;
+    getStorageFiles(): Promise<Paginated<any>>;
+    getStorageFiles(offset: number, limit: number): Promise<Paginated<any>>;
+    getStorageFiles(callback: Callback<Paginated<any>>): void;
+    getStorageFiles(offset: number, limit: number, callback: Callback<Paginated<any>>): void;
 
     deleteStorageFile(appUrl: string): Promise<boolean>;
     deleteStorageFile(appUrl: string, callback: Callback<boolean>): void;
@@ -227,17 +248,17 @@ declare module 'testingbot-api' {
     retrieveScreenshots(screenshotId: string): Promise<Screenshot>;
     retrieveScreenshots(screenshotId: string, callback: Callback<Screenshot>): void;
 
-    getScreenshotList(): Promise<Screenshot[]>;
-    getScreenshotList(offset: number, limit: number): Promise<Screenshot[]>;
-    getScreenshotList(callback: Callback<Screenshot[]>): void;
-    getScreenshotList(offset: number, limit: number, callback: Callback<Screenshot[]>): void;
+    getScreenshotList(): Promise<Paginated<Screenshot>>;
+    getScreenshotList(offset: number, limit: number): Promise<Paginated<Screenshot>>;
+    getScreenshotList(callback: Callback<Paginated<Screenshot>>): void;
+    getScreenshotList(offset: number, limit: number, callback: Callback<Paginated<Screenshot>>): void;
 
     // Team Management
     getTeam(): Promise<any>;
     getTeam(callback: Callback<any>): void;
 
-    getUsersInTeam(): Promise<TeamUser[]>;
-    getUsersInTeam(callback: Callback<TeamUser[]>): void;
+    getUsersInTeam(): Promise<Paginated<TeamUser>>;
+    getUsersInTeam(callback: Callback<Paginated<TeamUser>>): void;
 
     getUserFromTeam(userId: string | number): Promise<TeamUser>;
     getUserFromTeam(userId: string | number, callback: Callback<TeamUser>): void;
@@ -253,7 +274,74 @@ declare module 'testingbot-api' {
 
     // Utility
     getAuthenticationHashForSharing(sessionId: string): string;
+
+    // Workflow helpers (promise-based conveniences)
+    getAllTests(batchSize?: number): Promise<Test[]>;
+    waitForTestCompletion(sessionId: string | number, timeout?: number, pollInterval?: number): Promise<Test>;
+    runTestAndWait(options: SessionOptions, timeout?: number): Promise<Test>;
+    batchGetTestDetails(sessionIds: Array<string | number>): Promise<{
+      results: Array<{ sessionId: string | number; details: Test; success: true }>;
+      errors: Array<{ sessionId: string | number; error: string; success: false }>;
+    }>;
+    getTestStatistics(days?: number): Promise<TestStatistics>;
+    cleanupOldTests(daysOld?: number): Promise<{ deleted: Array<string | number>; errors: any[]; total: number }>;
+    smartCleanup(options?: { keepDays?: number; keepFailed?: boolean; keepMax?: number }): Promise<{
+      analyzed: number;
+      kept: number;
+      deleted: number;
+      errors: number;
+      details: any;
+    }>;
+    uploadFiles(filePaths: string[]): Promise<{ results: any[]; errors: any[] }>;
+    takeMultipleScreenshots(
+      urls: string[],
+      browsers: ScreenshotOptions['browsers'],
+      resolution: string,
+      options?: { waitTime?: number; fullPage?: boolean; callbackURL?: string }
+    ): Promise<any[]>;
   }
 
+  export interface TestStatistics {
+    total: number;
+    passed: number;
+    failed: number;
+    error: number;
+    running: number;
+    byBrowser: Record<string, number>;
+    byPlatform: Record<string, number>;
+    averageDuration: number;
+  }
+
+  export {
+    TestingBotError,
+    AuthenticationError,
+    RateLimitError,
+    ValidationError,
+    NotFoundError,
+    NetworkError
+  } from 'testingbot-api/lib/errors';
+
   export default TestingBot;
+}
+
+declare module 'testingbot-api/lib/errors' {
+  export class TestingBotError extends Error {
+    statusCode?: number;
+    response?: any;
+    constructor(message: string, statusCode?: number, response?: any);
+  }
+  export class AuthenticationError extends TestingBotError {}
+  export class RateLimitError extends TestingBotError {
+    retryAfter?: number | string;
+  }
+  export class ValidationError extends TestingBotError {
+    fields: string[];
+  }
+  export class NotFoundError extends TestingBotError {
+    resource: string;
+    id?: string | number;
+  }
+  export class NetworkError extends TestingBotError {
+    originalError?: any;
+  }
 }

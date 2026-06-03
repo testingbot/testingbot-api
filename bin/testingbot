@@ -119,7 +119,7 @@ Examples:
   testingbot devices available
   testingbot browsers list web
   testingbot storage upload ./test.zip
-  testingbot screenshot take "https://example.com" '{"browserName":"chrome"}'
+  testingbot screenshot take "https://example.com" '{"browsers":[{"browserName":"chrome","version":"latest","os":"WIN10"}],"resolution":"1280x1024"}'
 `;
 
 // Command handlers
@@ -262,11 +262,27 @@ const commands = {
         console.error('Error: URL and config required');
         process.exit(1);
       }
+      let parsedConfig;
       try {
-        const parsedConfig = JSON.parse(config);
-        api.takeScreenshot(url, parsedConfig, outputResult);
+        parsedConfig = JSON.parse(config);
       } catch (e) {
         console.error('Error: Invalid JSON config');
+        process.exit(1);
+      }
+      // config is { browsers: [...], resolution, waitTime?, fullPage?, callbackURL? }
+      const browsers = parsedConfig.browsers || parsedConfig;
+      try {
+        api.takeScreenshot(
+          url,
+          browsers,
+          parsedConfig.resolution,
+          parsedConfig.waitTime,
+          parsedConfig.fullPage,
+          parsedConfig.callbackURL,
+          outputResult
+        );
+      } catch (e) {
+        console.error('Error:', e.message);
         process.exit(1);
       }
     },
@@ -276,7 +292,7 @@ const commands = {
         console.error('Error: Screenshot ID required');
         process.exit(1);
       }
-      api.getScreenshot(id, outputResult);
+      api.retrieveScreenshots(id, outputResult);
     },
     list: (offset = 0, limit = 10) => {
       checkCredentials();
