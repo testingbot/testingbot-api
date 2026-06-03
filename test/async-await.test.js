@@ -4,6 +4,9 @@ const TbApi = require('../lib/api.js');
 const assert = require('assert');
 
 describe('TestingBot API Async/Await Tests', function() {
+  // Creating a real cloud session can take well over the default timeout.
+  this.timeout(30000);
+
   beforeEach(function() {
     this.api = new TbApi();
   });

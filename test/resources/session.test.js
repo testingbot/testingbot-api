@@ -4,7 +4,8 @@ const assert = require('assert');
 const { newClient } = require('../support/client');
 
 describe('Session Management', function () {
-  this.timeout(10000);
+  // Creating a real cloud session can take well over the default timeout.
+  this.timeout(30000);
 
   beforeEach(function () {
     this.api = newClient();

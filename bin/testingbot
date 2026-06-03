@@ -56,7 +56,11 @@ Authentication:
 Commands:
   user                    User account operations
     info                  Get current user information
+    keys                  Get your API key and secret
     update <data>         Update user information (JSON string)
+
+  config                  Account configuration
+    ip-ranges             List TestingBot IP ranges (for firewall allow-lists)
 
   tests                   Test management operations
     list [offset] [limit] List tests (default: offset=0, limit=10)
@@ -71,7 +75,7 @@ Commands:
     get <id>              Get specific device details
 
   browsers                Browser management
-    list [type]           List browsers (type: all|web|mobile|real)
+    list [type]           List browsers (type: webdriver|rc; default webdriver)
 
   storage                 File storage operations
     upload <file>         Upload a file to TestingBot storage
@@ -85,9 +89,11 @@ Commands:
     list [offset] [limit] List screenshots
 
   tunnel                  Tunnel management
-    info                  Get tunnel information
+    info                  Get the active tunnel
     list                  List all tunnels
-    delete <id>           Delete a tunnel
+    get <id>              Get a specific tunnel by ID
+    delete <id>           Delete a tunnel by ID
+    delete-active         Delete whichever tunnel is currently active
 
   builds                  Build management
     list [offset] [limit] List builds
@@ -98,6 +104,7 @@ Commands:
     info                  Get team information
     users                 List users in team
     get-user <id>         Get specific user from team
+    client-key <id>       Get a sub-account's client key
     create-user <data>    Create user (data as JSON)
 
   session                 Session operations
@@ -128,6 +135,10 @@ const commands = {
     info: () => {
       checkCredentials();
       api.getUserInfo(outputResult);
+    },
+    keys: () => {
+      checkCredentials();
+      api.getUserKeys(outputResult);
     },
     update: (data) => {
       checkCredentials();
@@ -210,10 +221,10 @@ const commands = {
   },
 
   browsers: {
-    list: (type = 'all') => {
+    list: (type) => {
       checkCredentials();
-      if (!['all', 'web', 'mobile', 'real'].includes(type)) {
-        console.error('Error: Invalid browser type. Use: all, web, mobile, or real');
+      if (type && !['webdriver', 'rc'].includes(type)) {
+        console.error('Error: Invalid browser type. Use: webdriver or rc');
         process.exit(1);
       }
       api.getBrowsers(type, outputResult);
@@ -309,6 +320,14 @@ const commands = {
       checkCredentials();
       api.getTunnelList(outputResult);
     },
+    get: (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: Tunnel ID required');
+        process.exit(1);
+      }
+      api.getTunnelById(id, outputResult);
+    },
     delete: (id) => {
       checkCredentials();
       if (!id) {
@@ -316,6 +335,17 @@ const commands = {
         process.exit(1);
       }
       api.deleteTunnel(id, outputResult);
+    },
+    'delete-active': () => {
+      checkCredentials();
+      api.deleteActiveTunnel(outputResult);
+    }
+  },
+
+  config: {
+    'ip-ranges': () => {
+      checkCredentials();
+      api.getIpRanges(outputResult);
     }
   },
 
@@ -358,6 +388,14 @@ const commands = {
         process.exit(1);
       }
       api.getUserFromTeam(id, outputResult);
+    },
+    'client-key': (id) => {
+      checkCredentials();
+      if (!id) {
+        console.error('Error: User ID required');
+        process.exit(1);
+      }
+      api.getUserClientKey(id, outputResult);
     },
     'create-user': (data) => {
       checkCredentials();

@@ -305,12 +305,12 @@ describe('TestingBot CLI Tests', function () {
       assert(Array.isArray(data));
     });
 
-    it('should list web browsers', async function () {
+    it('should list webdriver browsers', async function () {
       if (!process.env.TB_KEY || !process.env.TB_SECRET) {
         this.skip();
       }
 
-      const { stdout } = await execWithEnv(`${binaryPath} browsers list web`, {
+      const { stdout } = await execWithEnv(`${binaryPath} browsers list webdriver`, {
         TB_KEY: process.env.TB_KEY,
         TB_SECRET: process.env.TB_SECRET
       });

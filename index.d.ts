@@ -147,9 +147,9 @@ declare module 'testingbot-api' {
 
     // Browser & Device Management
     getBrowsers(): Promise<Browser[]>;
-    getBrowsers(type: 'web' | 'mobile'): Promise<Browser[]>;
+    getBrowsers(type: 'webdriver' | 'rc'): Promise<Browser[]>;
     getBrowsers(callback: Callback<Browser[]>): void;
-    getBrowsers(type: 'web' | 'mobile', callback: Callback<Browser[]>): void;
+    getBrowsers(type: 'webdriver' | 'rc', callback: Callback<Browser[]>): void;
 
     getDevices(): Promise<Device[]>;
     getDevices(callback: Callback<Device[]>): void;
@@ -160,6 +160,10 @@ declare module 'testingbot-api' {
     getDevice(deviceId: string): Promise<Device>;
     getDevice(deviceId: string, callback: Callback<Device>): void;
 
+    // Configuration
+    getIpRanges(): Promise<string[]>;
+    getIpRanges(callback: Callback<string[]>): void;
+
     // Session Management
     createSession(options: SessionOptions): Promise<SessionResponse>;
     createSession(options: SessionOptions, callback: Callback<SessionResponse>): void;
@@ -167,6 +171,9 @@ declare module 'testingbot-api' {
     // User Management
     getUserInfo(): Promise<UserInfo>;
     getUserInfo(callback: Callback<UserInfo>): void;
+
+    getUserKeys(): Promise<{ key: string; secret: string }>;
+    getUserKeys(callback: Callback<{ key: string; secret: string }>): void;
 
     updateUserInfo(userData: UserUpdate): Promise<UserInfo>;
     updateUserInfo(userData: UserUpdate, callback: Callback<UserInfo>): void;
@@ -193,8 +200,14 @@ declare module 'testingbot-api' {
     getTunnelList(): Promise<Tunnel[]>;
     getTunnelList(callback: Callback<Tunnel[]>): void;
 
+    getTunnelById(tunnelId: string | number): Promise<Tunnel>;
+    getTunnelById(tunnelId: string | number, callback: Callback<Tunnel>): void;
+
     deleteTunnel(tunnelId: string): Promise<boolean>;
     deleteTunnel(tunnelId: string, callback: Callback<boolean>): void;
+
+    deleteActiveTunnel(): Promise<boolean>;
+    deleteActiveTunnel(callback: Callback<boolean>): void;
 
     // Build Management
     getBuilds(): Promise<Paginated<Build>>;
@@ -271,6 +284,9 @@ declare module 'testingbot-api' {
 
     resetCredentials(userId: string | number): Promise<any>;
     resetCredentials(userId: string | number, callback: Callback<any>): void;
+
+    getUserClientKey(userId: string | number): Promise<{ client_key: string }>;
+    getUserClientKey(userId: string | number, callback: Callback<{ client_key: string }>): void;
 
     // Utility
     getAuthenticationHashForSharing(sessionId: string): string;
