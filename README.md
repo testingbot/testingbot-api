@@ -25,6 +25,9 @@ TestingBot provides a cloud-based test infrastructure for automated cross-browse
   - [Screenshots](#screenshots)
   - [Team Management](#team-management)
   - [Codeless Tests](#codeless-tests)
+  - [Workflow Helpers](#workflow-helpers)
+  - [Error Handling](#error-handling)
+- [Responses & Pagination](#responses--pagination)
 - [CLI Usage](#cli-usage)
   - [Installation](#installation-1)
   - [Authentication](#authentication)
@@ -47,10 +50,13 @@ TestingBot provides a cloud-based test infrastructure for automated cross-browse
 - Team management capabilities
 - Screenshot generation across multiple browsers
 - Tunnel management for local testing
+- Codeless test management (create, schedule, trigger, alerts, reports)
+- Built-in workflow helpers (auto-pagination, polling, batch operations, statistics)
+- Typed errors (`AuthenticationError`, `RateLimitError`, `ValidationError`, …)
 
 ## Requirements
 
-- NodeJS >= 10.0.0
+- NodeJS >= 14.0.0
 - A TestingBot account with API credentials
 
 ## Installation
@@ -101,12 +107,21 @@ const tb = new TestingBot({
 
 All methods support both **callback style** and **async/await patterns**. When using async/await, simply omit the callback parameter.
 
+> **List responses are paginated.** Endpoints that return a list (`getTests`, `getBuilds`,
+> `getStorageFiles`, `getScreenshotList`, `getCodelessTests`, `getUsersInTeam`) resolve to a
+> `{ data: [...], meta: { offset, count, total } }` object — read the array from `.data`. See
+> [Responses & Pagination](#responses--pagination). (`getBrowsers`, `getDevices` and `getTunnelList`
+> return a plain array.)
+>
+> **Errors are typed.** A failed request rejects (or calls back) with a `TestingBotError` subclass
+> carrying `.statusCode` and `.response`. See [Error Handling](#error-handling).
+
 ## API Reference
 
 ### Browser & Device Management
 
 #### getBrowsers
-Gets a list of browsers you can test on
+Gets a list of browsers you can test on. Returns a plain array.
 
 ```javascript
 // Callback style
@@ -115,12 +130,12 @@ tb.getBrowsers(type, function(error, browsers) {});
 // Async/await style
 const browsers = await tb.getBrowsers();
 
-// With optional type parameter (e.g., 'web' or 'mobile')
-const webBrowsers = await tb.getBrowsers('web');
+// With optional type parameter ('webdriver' (default) or 'rc' for legacy Selenium RC)
+const rcBrowsers = await tb.getBrowsers('rc');
 ```
 
 #### getDevices
-Gets a list of physical mobile devices you can test on
+Gets a list of physical mobile devices you can test on. Returns a plain array.
 
 ```javascript
 // Callback style
@@ -128,6 +143,20 @@ tb.getDevices(function(error, devices) {});
 
 // Async/await style
 const devices = await tb.getDevices();
+
+// Filter by OS family: Android, iOS, REAL_ANDROID or REAL_IOS
+const androidDevices = await tb.getDevices({ platform: 'Android' });
+```
+
+#### getIpRanges
+Gets the list of TestingBot IP ranges, useful for firewall allow-lists. No authentication required.
+
+```javascript
+// Callback style
+tb.getIpRanges(function(error, ipRanges) {});
+
+// Async/await style
+const ipRanges = await tb.getIpRanges();
 ```
 
 #### getAvailableDevices
@@ -197,30 +226,46 @@ const userInfo = await tb.getUserInfo();
 ```
 
 #### updateUserInfo
-Updates your user information
+Updates your user information. Only `first_name` and `last_name` are mutable. Pass the fields
+directly — they are wrapped in a `user` object for you.
 
 ```javascript
 // Callback style
-tb.updateUserInfo(newUserdata, function(error, userInfo) {});
+tb.updateUserInfo({ first_name: 'Jane', last_name: 'Doe' }, function(error, userInfo) {});
 
 // Async/await style
-const userInfo = await tb.updateUserInfo(newUserdata);
+const userInfo = await tb.updateUserInfo({ first_name: 'Jane', last_name: 'Doe' });
+```
+
+#### getUserKeys
+Returns the account's API key and secret (`{ key, secret }`).
+
+```javascript
+// Callback style
+tb.getUserKeys(function(error, keys) {});
+
+// Async/await style
+const keys = await tb.getUserKeys();
 ```
 
 ### Test Management
 
 #### getTests
-Gets list of your latest tests
+Gets a list of your latest tests. Resolves to `{ data, meta }` — the tests are in `.data`.
 
 ```javascript
 // Callback style
-tb.getTests(offset, limit, function(error, tests) {});
+tb.getTests(offset, limit, function(error, result) {});
 
 // Async/await style
-const tests = await tb.getTests();
+const result = await tb.getTests();
+console.log(result.data, result.meta);
 
 // With pagination
-const tests = await tb.getTests(10, 20); // offset: 10, limit: 20
+const page = await tb.getTests(10, 20); // offset: 10, count: 20
+
+// With filters (options form) — since (UNIX ts), group, build, browser_id, skip_fields
+const filtered = await tb.getTests({ offset: 0, count: 50, build: 'ci-42', skip_fields: 'logs' });
 ```
 
 #### getTestDetails
@@ -232,6 +277,9 @@ tb.getTestDetails(sessionId, function(error, testDetails) {});
 
 // Async/await style
 const testDetails = await tb.getTestDetails(sessionId);
+
+// Omit heavy fields from the response
+const lean = await tb.getTestDetails(sessionId, { skip_fields: 'logs,thumbs' });
 ```
 
 #### updateTest
@@ -271,8 +319,19 @@ const success = await tb.stopTest(sessionId);
 
 ### Tunnel Management
 
+#### getTunnel
+Gets the account's currently active tunnel (handy when you only run one).
+
+```javascript
+// Callback style
+tb.getTunnel(function(error, tunnel) {});
+
+// Async/await style
+const tunnel = await tb.getTunnel();
+```
+
 #### getTunnelList
-Gets list of active tunnels
+Gets list of active tunnels. Returns a plain array.
 
 ```javascript
 // Callback style
@@ -282,8 +341,19 @@ tb.getTunnelList(function(error, tunnelList) {});
 const tunnelList = await tb.getTunnelList();
 ```
 
+#### getTunnelById
+Gets a single tunnel by its ID.
+
+```javascript
+// Callback style
+tb.getTunnelById(tunnelId, function(error, tunnel) {});
+
+// Async/await style
+const tunnel = await tb.getTunnelById(tunnelId);
+```
+
 #### deleteTunnel
-Deletes a single Tunnel
+Deletes a single Tunnel by ID
 
 ```javascript
 // Callback style
@@ -291,6 +361,17 @@ tb.deleteTunnel(tunnelId, function(error, success) {});
 
 // Async/await style
 const success = await tb.deleteTunnel(tunnelId);
+```
+
+#### deleteActiveTunnel
+Tears down whichever tunnel is currently active, without needing an ID.
+
+```javascript
+// Callback style
+tb.deleteActiveTunnel(function(error, success) {});
+
+// Async/await style
+const success = await tb.deleteActiveTunnel();
 ```
 
 ### Build Management
@@ -406,15 +487,15 @@ const hash = tb.getAuthenticationHashForSharing(sessionId);
 Takes screenshots for the specific browsers
 
 ```javascript
-// Callback style
-tb.takeScreenshot(url, browsers, waitTime, resolution, fullPage, callbackURL, function(error, screenshots) {});
+// Callback style — note the parameter order: url, browsers, resolution, waitTime, fullPage, callbackURL
+tb.takeScreenshot(url, browsers, resolution, waitTime, fullPage, callbackURL, function(error, screenshots) {});
 
 // Async/await style
 const screenshots = await tb.takeScreenshot(
   'https://example.com',  // url - required
   [{ browserName: 'chrome', version: 'latest', os: 'WIN11' }],  // browsers - required
   '1920x1080',           // resolution - required
-  5000,                   // waitTime (ms) - optional
+  5,                      // waitTime (seconds) - optional
   true,                   // fullPage - optional
   'https://your-callback.com' // callbackURL - optional
 );
@@ -430,6 +511,9 @@ tb.retrieveScreenshots(screenshotId, function(error, screenshots) {});
 
 // Async/await style
 const screenshots = await tb.retrieveScreenshots(screenshotId);
+
+// Delta-fetch: exclude screenshot IDs you already have
+const delta = await tb.retrieveScreenshots(screenshotId, { excludeIds: '101,102' });
 ```
 
 #### getScreenshotList
@@ -482,13 +566,15 @@ const user = await tb.getUserFromTeam(userId);
 ```
 
 #### createUserInTeam
-Add a user to your team. You need ADMIN rights for this.
+Add a user to your team. You need ADMIN rights for this. Pass the fields at the top level;
+`email` and `password` are required.
 
 ```javascript
 const userData = {
-  'user[first_name]': 'John',
-  'user[last_name]': 'Doe',
-  'user[email]': 'john@example.com'
+  email: 'john@example.com',
+  password: 'a-strong-password',
+  first_name: 'John',
+  last_name: 'Doe'
 };
 
 // Callback style
@@ -499,12 +585,14 @@ const result = await tb.createUserInTeam(userData);
 ```
 
 #### updateUserInTeam
-Update a user in your team. You need ADMIN rights for this.
+Update a user in your team. You need ADMIN rights for this. Pass the fields at the top level
+(`first_name`, `last_name`, `email`, `password`, `credits`, `device_credits`, `concurrency`,
+`concurrencyPhysical`).
 
 ```javascript
 const userData = {
-  'user[first_name]': 'Jane',
-  'user[last_name]': 'Smith'
+  first_name: 'Jane',
+  last_name: 'Smith'
 };
 
 // Callback style
@@ -512,6 +600,17 @@ tb.updateUserInTeam(userId, userData, function(error, result) {});
 
 // Async/await style
 const result = await tb.updateUserInTeam(userId, userData);
+```
+
+#### getUserClientKey
+Gets a sub-account's client key (`{ client_key }`). You need ADMIN rights for this.
+
+```javascript
+// Callback style
+tb.getUserClientKey(userId, function(error, result) {});
+
+// Async/await style
+const result = await tb.getUserClientKey(userId);
 ```
 
 #### resetCredentials
@@ -580,6 +679,13 @@ tb.updateCodelessTest(updateData, testId, function(error, result) {});
 const result = await tb.updateCodelessTest(updateData, testId);
 ```
 
+#### getCodelessTest
+Gets a single codeless test by ID
+
+```javascript
+const test = await tb.getCodelessTest(testId);
+```
+
 #### deleteCodelessTest
 Deletes a codeless test
 
@@ -590,6 +696,120 @@ tb.deleteCodelessTest(testId, function(error, result) {});
 // Async/await style
 const result = await tb.deleteCodelessTest(testId);
 ```
+
+#### Running & scheduling
+
+```javascript
+await tb.triggerCodelessTest(testId);              // run now
+await tb.triggerAllCodelessTests();                // run every codeless test
+await tb.stopCodelessTest(testId);                 // stop a running test
+
+// Schedule: once / daily / weekly preset, or a raw cron expression
+await tb.scheduleCodelessTest(testId, { type: 'daily', hour: '09:00' });
+await tb.scheduleCodelessTest(testId, { type: 'custom', cronFormat: '0 9 * * 1' });
+```
+
+#### Steps & browsers
+
+```javascript
+const steps = await tb.getCodelessSteps(testId);
+await tb.addCodelessStep(testId, { /* step definition */ });
+
+const browsers = await tb.getCodelessBrowsers(testId);
+await tb.setCodelessBrowsers(testId, { /* browser selection */ });
+```
+
+#### Alerts & reports
+
+```javascript
+await tb.createCodelessAlert(testId, { /* alert config */ });
+await tb.updateCodelessAlert(testId, { /* alert config */ });
+
+await tb.createCodelessReport(testId, { /* report config */ });
+await tb.updateCodelessReport(testId, { /* report config */ });
+```
+
+### Workflow Helpers
+
+Promise-based conveniences built on the methods above. These always return promises.
+
+```javascript
+// Fetch every test, paging automatically (returns a flat array)
+const allTests = await tb.getAllTests();
+
+// Poll a test until it reaches a terminal state (or the timeout elapses)
+const finished = await tb.waitForTestCompletion(sessionId, 300000, 5000);
+
+// Create a session and wait for it to finish
+const result = await tb.runTestAndWait({ capabilities: { browserName: 'chrome' } });
+
+// Fetch details for many tests at once
+const { results, errors } = await tb.batchGetTestDetails([id1, id2, id3]);
+
+// Aggregate pass/fail/state and browser/platform counts over the last N days
+const stats = await tb.getTestStatistics(7);
+
+// Bulk uploads / screenshots
+const uploads = await tb.uploadFiles(['/path/a.apk', '/path/b.ipa']);
+const shots = await tb.takeMultipleScreenshots(
+  ['https://example.com', 'https://example.com/pricing'],
+  [{ browserName: 'chrome', version: 'latest', os: 'WIN11' }],
+  '1920x1080',
+  { waitTime: 3, fullPage: true }
+);
+
+// Cleanup helpers (destructive)
+await tb.cleanupOldTests(30);                                   // delete tests older than 30 days
+await tb.smartCleanup({ keepDays: 30, keepFailed: true, keepMax: 1000 });
+```
+
+### Error Handling
+
+Every failed request rejects (or calls back) with a typed error that extends `TestingBotError`
+and carries `.statusCode` and `.response` (the raw response body). The classes are exported from
+the package:
+
+```javascript
+const TestingBot = require('testingbot-api');
+const { TestingBotError, AuthenticationError, RateLimitError, ValidationError, NotFoundError, NetworkError } = TestingBot;
+
+try {
+  await tb.getTestDetails('does-not-exist');
+} catch (error) {
+  if (error instanceof AuthenticationError) {
+    console.error('Bad credentials');
+  } else if (error instanceof RateLimitError) {
+    console.error('Slow down, retry after', error.retryAfter);
+  } else {
+    console.error(error.name, error.statusCode, error.message);
+  }
+}
+```
+
+| Status | Error class |
+|--------|-------------|
+| 400 | `ValidationError` (has `.fields`) |
+| 401 | `AuthenticationError` |
+| 429 | `RateLimitError` (has `.retryAfter`) |
+| other non-2xx | `TestingBotError` |
+| no response (transport failure) | `NetworkError` |
+
+## Responses & Pagination
+
+List endpoints return a `{ data, meta }` envelope rather than a bare array:
+
+```javascript
+const result = await tb.getTests(0, 20);
+// {
+//   data: [ /* tests */ ],
+//   meta: { offset: 0, count: 20, total: 1234 }
+// }
+result.data.forEach(test => console.log(test.id, test.state));
+```
+
+This applies to `getTests`, `getBuilds`, `getStorageFiles`, `getScreenshotList`, `getCodelessTests`
+and `getUsersInTeam`. The `getAllTests()` workflow helper unwraps and concatenates these pages for
+you. `getBrowsers`, `getDevices` and `getTunnelList` return a plain array.
 
 ## CLI Usage
 
@@ -616,6 +836,7 @@ The CLI uses the same authentication methods as the API client:
 ```bash
 # User management
 testingbot user info                    # Get user information
+testingbot user keys                    # Get your API key and secret
 testingbot user update <json>           # Update user information
 
 # Test management
@@ -626,18 +847,48 @@ testingbot tests stop <id>              # Stop a running test
 
 # Codeless tests (Lab)
 testingbot lab list [offset] [limit]    # List codeless tests
+testingbot lab get <id>                 # Get a codeless test
 testingbot lab create <json>            # Create a codeless test
 testingbot lab update <id> <json>       # Update a codeless test
 testingbot lab delete <id>              # Delete a codeless test
+testingbot lab trigger <id>             # Trigger a run
+testingbot lab trigger-all              # Trigger all codeless tests
+testingbot lab stop <id>                # Stop a running test
+testingbot lab schedule <id> <json>     # Set a schedule
+testingbot lab steps <id>               # List steps
+testingbot lab add-step <id> <json>     # Add a step
+testingbot lab browsers <id>            # List browsers
+testingbot lab set-browsers <id> <json> # Set browsers
+testingbot lab alert <id> <json>        # Create an alert
+testingbot lab update-alert <id> <json> # Update an alert
+testingbot lab report <id> <json>       # Create a report
+testingbot lab update-report <id> <json> # Update a report
 
 # Browsers and devices
-testingbot browsers list [type]         # List browsers (type: all|web|mobile|real)
-testingbot devices list                 # List all devices
+testingbot browsers list [type]         # List browsers (type: webdriver|rc)
+testingbot devices list [platform]      # List devices (platform: Android|iOS|REAL_ANDROID|REAL_IOS)
 testingbot devices available            # List available devices
+testingbot devices get <id>             # Get a device
+testingbot config ip-ranges             # List TestingBot IP ranges
+
+# Tunnels
+testingbot tunnel info                   # Get the active tunnel
+testingbot tunnel list                   # List tunnels
+testingbot tunnel get <id>               # Get a tunnel by ID
+testingbot tunnel delete <id>            # Delete a tunnel
+testingbot tunnel delete-active          # Delete the active tunnel
+
+# Team
+testingbot team info                     # Get team info
+testingbot team users                    # List team users
+testingbot team get-user <id>            # Get a team user
+testingbot team client-key <id>          # Get a user's client key
+testingbot team create-user <json>       # Create a team user
 
 # Storage
 testingbot storage upload <file>        # Upload a file
 testingbot storage list [offset] [limit] # List stored files
+testingbot storage get <id>             # Get a stored file
 testingbot storage delete <id>          # Delete a stored file
 
 # Help
@@ -661,7 +912,7 @@ testingbot lab create '{
 testingbot tests list 0 20
 
 # Get browser list
-testingbot browsers list web
+testingbot browsers list webdriver
 
 # Upload a file to storage
 testingbot storage upload ./test-app.zip
@@ -685,17 +936,17 @@ async function runTests() {
     const userInfo = await tb.getUserInfo();
     console.log('User:', userInfo);
 
-    // Get available browsers
+    // Get available browsers (plain array)
     const browsers = await tb.getBrowsers();
     console.log('Available browsers:', browsers.length);
 
-    // Get recent tests
+    // Get recent tests (paginated: { data, meta })
     const tests = await tb.getTests(0, 10);
-    console.log('Recent tests:', tests.length);
+    console.log('Recent tests:', tests.data.length, 'of', tests.meta.total);
 
     // Get test details for the first test
-    if (tests.length > 0) {
-      const testDetails = await tb.getTestDetails(tests[0].session_id);
+    if (tests.data.length > 0) {
+      const testDetails = await tb.getTestDetails(tests.data[0].id);
       console.log('Test details:', testDetails);
     }
 
@@ -722,13 +973,19 @@ runTests();
 
 ## Testing
 
-Run the test suite:
+Run lint + the full test suite:
 
 ```bash
 npm test
 ```
 
-**Note:** Tests require valid TestingBot credentials set as environment variables (`TB_KEY` and `TB_SECRET`).
+Most suites are integration tests that hit the live API and require valid TestingBot credentials set
+as environment variables (`TB_KEY` and `TB_SECRET`). A subset are pure unit tests that need **no
+credentials** (typed-error mapping, parameter validation, request shaping, and workflow helpers):
+
+```bash
+npx mocha --grep "Typed errors|Parameter validation|Request shaping|Workflow helpers"
+```
 
 ## Contributing
 
