@@ -56,7 +56,7 @@ TestingBot provides a cloud-based test infrastructure for automated cross-browse
 
 ## Requirements
 
-- NodeJS >= 14.0.0
+- NodeJS >= 18.0.0
 - A TestingBot account with API credentials
 
 ## Installation
