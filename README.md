@@ -781,6 +781,8 @@ try {
 } catch (error) {
   if (error instanceof AuthenticationError) {
     console.error('Bad credentials');
+  } else if (error instanceof NotFoundError) {
+    console.error('No such test');
   } else if (error instanceof RateLimitError) {
     console.error('Slow down, retry after', error.retryAfter);
   } else {
@@ -793,6 +795,7 @@ try {
 |--------|-------------|
 | 400 | `ValidationError` (has `.fields`) |
 | 401 | `AuthenticationError` |
+| 404 | `NotFoundError` |
 | 429 | `RateLimitError` (has `.retryAfter`) |
 | other non-2xx | `TestingBotError` |
 | no response (transport failure) | `NetworkError` |
