@@ -57,6 +57,16 @@ describe('Typed errors', function () {
       assert.strictEqual(e.retryAfter, '30');
     });
 
+    it('maps 404 to NotFoundError, preserving message + body', function () {
+      const body = { error: '404 Not Found. Could not find test x' };
+      const e = buildHttpError(404, body);
+      assert.ok(e instanceof NotFoundError);
+      assert.ok(e instanceof TestingBotError);
+      assert.strictEqual(e.statusCode, 404);
+      assert.strictEqual(e.message, body.error);
+      assert.strictEqual(e.response, body);
+    });
+
     it('maps other statuses to TestingBotError, keeping status + body', function () {
       const body = { error: 'boom' };
       const e = buildHttpError(500, body);
